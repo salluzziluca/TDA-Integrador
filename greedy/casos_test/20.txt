@@ -1,6 +1,2 @@
 # Los valores de las monedas de la fila se muestran tal cual su orden correspondiente, separados por ;
 72;165;794;892;880;341;882;570;679;725;979;375;459;603;112;436;587;699;681;83
-
-mateo [72+165+699+587+436+112+341+459+375+679] = 3925
-
-soph [83+681+794+892+880+603+882+570+979+725] =7089
