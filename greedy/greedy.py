@@ -10,9 +10,9 @@ def elegir_moneda(monedas, jugador):
 
     # Determina la moneda a elegir: mayor para Sophia, menor para Mateo
     if (jugador == SOPHIA and monedas[MONEDA_IZQ] > monedas[MONEDA_DER]) or (jugador == MATEO and monedas[MONEDA_IZQ] < monedas[MONEDA_DER]):
-        return monedas.pop(MONEDA_IZQ)
+        return monedas.popleft() # Moneda izq
     else:
-        return monedas.pop(MONEDA_DER)
+        return monedas.pop() # Moneda der
 
 def greedy(monedas):
     puntos_sophia = 0
@@ -23,3 +23,5 @@ def greedy(monedas):
 
     return puntos_sophia, puntos_mateo
 
+
+    ## Cada iteracion recorro 4 posiciones y reduzco el tamaño del array en 2. Por lo tanto la complejidad del while es n/2 por que se recorrera 
