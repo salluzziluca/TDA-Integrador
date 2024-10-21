@@ -112,3 +112,13 @@ Mateo: [5;1]
 .
 .
 .
+
+## Variabilidad segun valores de monedas
+
+Cambia espacialmente
+
+### Variabilidad con respecto al tiempo
+
+### Variabilidad con respecto a la optimalidad
+
+El algoritmo es óptimo independientemente de la cantidad de monedas o sus valores, excepto en el caso de una cantidad par de monedas de mismo valor lo que resulta en empate siempre
