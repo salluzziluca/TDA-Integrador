@@ -1,3 +1,5 @@
+from collections import deque 
+
 SOPHIA = 0
 MATEO = 1
 
@@ -15,11 +17,12 @@ def elegir_moneda(monedas, jugador):
         return monedas.pop() # Moneda der
 
 def greedy_monedas(monedas):
+    deque_monedes = deque(monedas) # dequeado paraque el pop(0) sea O(1)
     puntos_sophia = 0
     puntos_mateo = 0
-    while monedas:
-        puntos_sophia += elegir_moneda(monedas, SOPHIA)
-        puntos_mateo += elegir_moneda(monedas, MATEO)
+    while deque_monedes:
+        puntos_sophia += elegir_moneda(deque_monedes, SOPHIA)
+        puntos_mateo += elegir_moneda(deque_monedes, MATEO)
 
     return puntos_sophia, puntos_mateo
 
