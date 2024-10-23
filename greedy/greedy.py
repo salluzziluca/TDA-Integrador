@@ -14,7 +14,7 @@ def elegir_moneda(monedas, jugador):
     else:
         return monedas.pop() # Moneda der
 
-def greedy(monedas):
+def greedy_monedas(monedas):
     puntos_sophia = 0
     puntos_mateo = 0
     while monedas:
