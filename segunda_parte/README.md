@@ -40,3 +40,6 @@ El jugador tiene dos opciones, tomar la moneda izquierda o derecha. Si toma la i
 El hecho de que tomemos el mínimo de las opciones del jugador siguiente asegura que estamos considerando que ambos jugadores juegan de forma óptima, lo que maximiza el valor acumulado para el primer jugador.
 
 Dado que la recurrencia es válida para subsecuencias más pequeñas y seguimos esta lógica inductiva para subsecuencias más grandes, hemos demostrado por inducción que la recurrencia lleva al valor máximo acumulado.
+
+https://www.overleaf.com/project/671e691d3ed6d3b699e59ca3
+
