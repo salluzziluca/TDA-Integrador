@@ -36,6 +36,7 @@ class TestPD(unittest.TestCase):
         self.assertTrue(result == 2869340)
     def test_PD_5000(self):
         result = programacion_dinamica_sofia(csv_tests_PD("5000.txt"))
+        print(result)
         self.assertTrue(result == 9939221)
     def test_PD_10000(self):
         result = programacion_dinamica_sofia(csv_tests_PD("10000.txt"))
