@@ -17,7 +17,7 @@ def programacion_dinamica_sofia(monedas):
             # Opción 1: tomar la moneda de la izquierda
             tomar_izq = monedas[izq] + min(
                 OPT[izq + 2][der] if izq + 2 <= der else 0,
-                OPT[izq + 1][der - 1] if izq + 1 <= der - 1 else 0
+                OPT[izq + 1][der - 1] if izq + 2 <= der  else 0
             )
             # Opción 2: tomar la moneda de la derecha
             tomar_der = monedas[der] + min(
@@ -32,8 +32,8 @@ def programacion_dinamica_sofia(monedas):
             else:
                 OPT[izq][der] = tomar_der
                 decisiones[izq][der] = 'der'
-
-    return OPT[0][n - 1], reconstruir_camino(decisiones, monedas)
+                 
+    return OPT[0][n - 1],reconstruir_camino(decisiones, monedas)
 
 
 def reconstruir_camino(decisiones, monedas):
@@ -58,7 +58,7 @@ def reconstruir_camino(decisiones, monedas):
             right -= 1  # Reducimos el intervalo por la derecha
 
         turnos += 1  # Cambiamos de turno
-
+    
     return camino
 
 
@@ -70,5 +70,5 @@ def main():
     print("Camino de elecciones:")
     for paso in resultado:
         print(paso)
-
+#main()
 
