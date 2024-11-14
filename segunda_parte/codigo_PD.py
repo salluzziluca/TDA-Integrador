@@ -14,16 +14,24 @@ def programacion_dinamica_sofia(monedas):
     for k in range(2, n + 1):  # k es el tamaño del intervalo
         for izq in range(n - k + 1):
             der = izq + k - 1
-            # Opción 1: tomar la moneda de la izquierda
-            tomar_izq = monedas[izq] + min(
-                OPT[izq + 2][der] if izq + 2 <= der else 0,
-                OPT[izq + 1][der - 1] if izq + 2 <= der  else 0
-            )
-            # Opción 2: tomar la moneda de la derecha
-            tomar_der = monedas[der] + min(
-                OPT[izq + 1][der - 1] if izq + 1 <= der - 1 else 0,
-                OPT[izq][der - 2] if izq <= der - 2 else 0
-            )
+
+            # Opción 1: Sophia toma la moneda de la izquierda
+            if izq + 1 <= der:
+                if monedas[izq + 1] >= monedas[der]:
+                    tomar_izq = monedas[izq] + OPT[izq + 2][der] if izq + 2 <= der else monedas[izq]
+                else:
+                    tomar_izq = monedas[izq] + OPT[izq + 1][der - 1] if izq + 1 <= der - 1 else monedas[izq]
+            else:
+                tomar_izq = monedas[izq]
+
+            # Opción 2: Sophia toma la moneda de la derecha
+            if izq <= der - 1:
+                if monedas[izq] >= monedas[der - 1]:
+                    tomar_der = monedas[der] + OPT[izq + 1][der - 1] if izq + 1 <= der - 1 else monedas[der]
+                else:
+                    tomar_der = monedas[der] + OPT[izq][der - 2] if izq <= der - 2 else monedas[der]
+            else:
+                tomar_der = monedas[der]
 
             # Elegir la mejor opción y registrar la decisión
             if tomar_izq > tomar_der:
@@ -32,8 +40,11 @@ def programacion_dinamica_sofia(monedas):
             else:
                 OPT[izq][der] = tomar_der
                 decisiones[izq][der] = 'der'
-                 
-    return OPT[0][n - 1],reconstruir_camino(decisiones, monedas)
+
+    return OPT[0][n - 1]
+
+
+#, reconstruir_camino(decisiones, monedas)
 
 
 def reconstruir_camino(decisiones, monedas):
@@ -64,11 +75,10 @@ def reconstruir_camino(decisiones, monedas):
 
 def main():
     # Cargar las monedas desde un archivo o lista de prueba
-    monedas = csv_tests_PD("100.txt")  # Asegúrate de que la función `csv_tests_PD` cargue correctamente las monedas
+    monedas = csv_tests_PD("25.txt")  # Asegúrate de que la función `csv_tests_PD` cargue correctamente las monedas
     max_puntaje, resultado = programacion_dinamica_sofia(monedas)
     print("Máximo puntaje que puede obtener Sophia:", max_puntaje)
     print("Camino de elecciones:")
     for paso in resultado:
         print(paso)
 #main()
-
