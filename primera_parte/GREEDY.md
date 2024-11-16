@@ -113,11 +113,40 @@ Mateo: [5;1]
 .
 .
 
-## Variabilidad segun valores de monedas
+### Observaciones sobre la complejidad
 
-Cambia espacialmente
+1. **Entrada:**  
+   La función recibe una lista de enteros `monedas` y la convierte en un `deque`, lo que permite operaciones eficientes en ambos extremos de la secuencia.
 
-### Variabilidad con respecto al tiempo
+2. **Operaciones con `deque`:**
+
+    - `deque.popleft()` tiene una complejidad de \(O(1)\).
+    - `deque.pop()` tiene una complejidad de \(O(1)\).
+
+3. **Bucle:**
+
+    - El bucle `while deque_monedes` se ejecuta mientras haya monedas en el deque.
+    - Dado que se elimina una moneda en cada iteración, el bucle se ejecuta \(n\) veces, donde \(n\) es el número inicial de monedas.
+
+4. **Función `elegir_moneda`:**
+    - Dentro del bucle, la función `elegir_moneda` se llama dos veces (una por cada jugador).
+    - Esta función realiza un número constante de operaciones (\(O(1)\)) en cada llamada, ya que incluye comparaciones y una operación `popleft()` o `pop()`.
+
+### Complejidad temporal general
+
+-   El bucle `while` se ejecuta \(n\) veces.
+-   Dentro del bucle, `elegir_moneda` se llama dos veces, y cada llamada toma \(O(1)\).
+-   Por lo tanto, la complejidad total de la función es \(O(2n) = O(n)\).
+
+### Complejidad espacial
+
+-   El `deque` requiere \(O(n)\) espacio para almacenar las monedas.
+-   No se utiliza memoria adicional significativa, ya que las variables `puntos_sophia` y `puntos_mateo` son escalares.
+
+### Conclusión
+
+-   **Complejidad temporal:** \(O(n)\)
+-   **Complejidad espacial:** \(O(n)\)
 
 ### Variabilidad con respecto a la optimalidad
 
