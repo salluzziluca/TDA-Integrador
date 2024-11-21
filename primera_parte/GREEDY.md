@@ -2,7 +2,7 @@
 
 # Complejidad algoritmica
 
-Cada iteracion recorro 4 posiciones y reduzco el tamaño del array en 2. Por lo tanto la complejidad del while es n/2. Y luego la complejidad de elegir moneda es O(1) ya que solo se hace una operacion de comparacion y otra de pop o popleft, ambos O(1) porque estamos usando un deque. Por lo tanto la complejidad total es O(n/2) = O(n)
+Cada iteracion recorro 4 posiciones. Por lo tanto la complejidad del while es n/2. Y luego la complejidad de elegir moneda es O(1) ya que solo se hace una operacion de comparacion y otra de pop o popleft, ambos O(1) porque estamos usando un deque. Por lo tanto la complejidad total es O(n/2) = O(n)
 
 ## Pares
 
@@ -83,6 +83,10 @@ Sin greedy: Sophia: [2, 9 ] Mateo: [1, 3]
 
 Como se puede ver. Por greedy ella termina con un total de 12 puntos mientras que sin greedy termina con 11. Por lo tanto, no es conveniente para ella agarrar la moneda mas chica.
 
+### Variabilidad con respecto a la optimalidad
+
+El algoritmo es óptimo independientemente de la cantidad de monedas o sus valores, excepto en el caso de una cantidad par de monedas de mismo valor lo que resulta en empate siempre
+
 ## Base inductiva:
 
 Con una sola moneda (n=1) Sophia gana porque empieza ella y la elige
@@ -147,7 +151,3 @@ Mateo: [5;1]
 
 -   **Complejidad temporal:** \(O(n)\)
 -   **Complejidad espacial:** \(O(n)\)
-
-### Variabilidad con respecto a la optimalidad
-
-El algoritmo es óptimo independientemente de la cantidad de monedas o sus valores, excepto en el caso de una cantidad par de monedas de mismo valor lo que resulta en empate siempre
