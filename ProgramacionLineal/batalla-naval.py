@@ -3,13 +3,13 @@ import numpy as np
 import time
 
 # Parámetros del problema
-n, m = 6, 6  # Dimensiones del tablero
-k = 3         # Número de barcos
-barcos = [3, 2, 1]  # Longitud de cada barco
+n, m = 3, 3  # Dimensiones del tablero
+k = 2         # Número de barcos
+barcos = [1,1 ]  # Longitud de cada barco
 
 
-restricciones_filas = [3, 2, 1, 1, 1, 2]
-restricciones_columnas = [2, 1, 2, 1, 2, 1]
+restricciones_filas = [3, 1, 2]
+restricciones_columnas = [3, 2, 0]
 
 problema = LpProblem("Batalla_Naval", LpMinimize)
 
@@ -70,8 +70,28 @@ for i in range(n):
     for j in range(m):
         if x[i, j].varValue > 0.5:
             solucion[i, j] = 1
-
 # Mostrar resultados
 print("Tablero solucionado:")
 print(solucion)
 print(f"Tiempo de resolución (Programación Lineal): {tiempo_lp:.4f} segundos")
+
+# Mostrar posiciones de los barcos
+barcos_posiciones = []
+for b in range(k):
+    for i in range(n):
+        for j in range(m):
+            if y[b, i, j, "H"].varValue > 0.5:
+                barcos_posiciones.append((b, (i, j), "H"))
+            elif y[b, i, j, "V"].varValue > 0.5:
+                barcos_posiciones.append((b, (i, j), "V"))
+
+print("Posiciones de los barcos:")
+for b, (i, j), orientacion in barcos_posiciones:
+    print(f"Barco {b}: ({i}, {j}) orientación {orientacion}")
+
+# Calcular demanda cumplida
+demanda_cumplida = np.sum(solucion)
+demanda_total = np.sum(restricciones_filas) + np.sum(restricciones_columnas)
+
+print(f"Demanda cumplida: {demanda_cumplida}")
+print(f"Demanda total: {demanda_total}")
