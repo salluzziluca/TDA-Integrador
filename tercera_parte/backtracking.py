@@ -1,99 +1,108 @@
-'''Condicion de barco:
--si no hay ni un barco.
--si la cant de fil y col se pasan de la cant pedida.
--las filas y cols pedidas sean adyacentes. '''
-
-import numpy as np
 from csv_casos import procesar_archivo
 
-
-def calcular_demanda_incumplida(tablero, demandas_filas, demandas_columnas):
-    incumplida = 0
-    cumplida = 0
-    filas_ocupadas = np.sum(tablero, axis=1)
-    columnas_ocupadas = np.sum(tablero, axis=0)
+def calcular_demanda_incumplida(filas_cumplidas, columnas_cumplidas, demandas_filas, demandas_columnas, n, m):
+        fila_incumplida = sum(max(0, demandas_filas[i] - filas_cumplidas[i]) for i in range(n))
+        columna_incumplida = sum(max(0, demandas_columnas[j] - columnas_cumplidas[j]) for j in range(m))
+        return fila_incumplida + columna_incumplida
     
-    for i in range(len(demandas_filas)):
-        if filas_ocupadas[i] < demandas_filas[i]:
-            incumplida += demandas_filas[i] - filas_ocupadas[i]
-        cumplida += min(filas_ocupadas[i], demandas_filas[i])
-    
-    for j in range(len(demandas_columnas)):
-        if columnas_ocupadas[j] < demandas_columnas[j]:
-            incumplida += demandas_columnas[j] - columnas_ocupadas[j]
-        cumplida += min(columnas_ocupadas[j], demandas_columnas[j])
-    
-    return incumplida, cumplida
-
-def es_valido(tablero, fila, columna, longitud, orientacion, demandas_filas, demandas_columnas):
-    n, m = tablero.shape
+def verificar_posicion(tablero, barco, fila, columna, orientacion, filas_cumplidas, columnas_cumplidas, demandas_filas, demandas_columnas, n, m):
     if orientacion == "H":
-        if columna + longitud > m:
+        if columna + barco > m:
             return False
-        for j in range(columna, columna + longitud):
-            if tablero[fila, j] == 1 or np.sum(tablero[:, j]) + 1 > demandas_columnas[j]:
+        # Verificar que no haya barcos en el camino y no exceda las demandas de filas/columnas
+        for col in range(barco):
+            if tablero[fila][columna + col] == 1 or columnas_cumplidas[columna + col] + 1 > demandas_columnas[columna + col]:
                 return False
-        if np.sum(tablero[fila, :]) + longitud > demandas_filas[fila]:
+        if filas_cumplidas[fila] + barco > demandas_filas[fila]:
             return False
-    elif orientacion == "V":
-        if fila + longitud > n:
+    else:  # orientacion == "V"
+        if fila + barco > n:
             return False
-        for i in range(fila, fila + longitud):
-            if tablero[i, columna] == 1 or np.sum(tablero[i, :]) + 1 > demandas_filas[i]:
+        # Verificar que no haya barcos en el camino y no exceda las demandas de filas/columnas
+        for f in range(barco):
+            if tablero[f + fila][columna] == 1 or filas_cumplidas[f + fila] + 1 > demandas_filas[f + fila]:
                 return False
-        if np.sum(tablero[:, columna]) + longitud > demandas_columnas[columna]:
+        if columnas_cumplidas[columna] + barco > demandas_columnas[columna]:
             return False
     return True
 
-def colocar_barco(tablero, fila, columna, longitud, orientacion, valor):
-    if orientacion == "H":
-        tablero[fila, columna:columna + longitud] = valor
-    elif orientacion == "V":
-        tablero[fila:fila + longitud, columna] = valor
+    
+def colocar_barco(tablero, barco, fila, columna, orientacion, valor):
+        if orientacion == "H":
+            for col in range(barco):
+                tablero[fila][col + columna] = valor
+        else:  # orientacion == "V"
+            for f in range(barco):
+                tablero[f + fila][columna] = valor
+                
+def actualizar_cumplidos(tablero, m, n):
+        filas_cumplidas = [sum(tablero[i]) for i in range(n)]
+        columnas_cumplidas = [sum(tablero[i][j] for i in range(n)) for j in range(m)]
+        return filas_cumplidas, columnas_cumplidas
 
-def backtrack(tablero, barcos, demandas_filas, demandas_columnas, index, mejor_solucion, posiciones_actuales):
-    if index == len(barcos):
-        incumplida, cumplida = calcular_demanda_incumplida(tablero, demandas_filas, demandas_columnas)
-        if incumplida < mejor_solucion[1]:
-            mejor_solucion[0] = np.copy(tablero)
-            mejor_solucion[1] = incumplida
-            mejor_solucion[2] = list(posiciones_actuales)
-            mejor_solucion[3] = cumplida
-        return
+def backtrack(idx, tablero, filas_cumplidas, columnas_cumplidas, memo, mejor_solucion, barcos, n, m, demandas_filas, demandas_columnas):
+    estado = (idx, tuple(map(tuple, tablero)))
+    if estado in memo:
+        return memo[estado]
 
-    longitud = barcos[index]
-    n, m = tablero.shape
+    demanda_incumplida_actual = calcular_demanda_incumplida(filas_cumplidas, columnas_cumplidas, demandas_filas, demandas_columnas, n, m)
+    if demanda_incumplida_actual >= mejor_solucion[0]:
+        return float("inf")
+
+    if idx == len(barcos):
+        if demanda_incumplida_actual < mejor_solucion[0]:
+            mejor_solucion[0] = demanda_incumplida_actual
+            mejor_solucion[1] = [row[:] for row in tablero]
+        return demanda_incumplida_actual
+
+    barco = barcos[idx]
     for fila in range(n):
         for columna in range(m):
             for orientacion in ["H", "V"]:
-                if es_valido(tablero, fila, columna, longitud, orientacion, demandas_filas, demandas_columnas):
-                    colocar_barco(tablero, fila, columna, longitud, orientacion, 1)
-                    posiciones_actuales.append((fila, columna))
-                    backtrack(tablero, barcos, demandas_filas, demandas_columnas, index + 1, mejor_solucion, posiciones_actuales)
-                    colocar_barco(tablero, fila, columna, longitud, orientacion, 0)
-                    posiciones_actuales.pop()
+                if verificar_posicion(tablero, barco, fila, columna, orientacion, filas_cumplidas, columnas_cumplidas, demandas_filas, demandas_columnas, n, m):
+                    colocar_barco(tablero, barco, fila, columna, orientacion, 1)
+                    nuevas_filas, nuevas_columnas = actualizar_cumplidos(tablero, m, n)
+                    backtrack(idx + 1, tablero, nuevas_filas, nuevas_columnas, memo, mejor_solucion, barcos, n, m, demandas_filas, demandas_columnas)
+                    colocar_barco(tablero, barco, fila, columna, orientacion, 0)
 
-def resolver_problema(n, m, barcos, demandas_filas, demandas_columnas):
-    tablero = np.zeros((n, m), dtype=int)
-    mejor_solucion = [None, float("inf"), [], 0]  # [mejor_tablero, demanda_incumplida, posiciones, demanda_cumplida]
-    backtrack(tablero, barcos, demandas_filas, demandas_columnas, 0, mejor_solucion, [])
-    return mejor_solucion
+    resultado = backtrack(idx + 1, tablero, filas_cumplidas, columnas_cumplidas, memo, mejor_solucion, barcos, n, m, demandas_filas, demandas_columnas)
+    memo[estado] = resultado
+    return resultado
 
+    
+def resolver_tablero(n, m, barcos, demandas_filas, demandas_columnas):
+    # Ordenar barcos por tamaño decreciente para reducir opciones
+    barcos.sort(reverse=True)
 
+    # Inicialización
+    tablero = [[0] * m for _ in range(n)]
+    filas_cumplidas, columnas_cumplidas = actualizar_cumplidos(tablero, m, n)
+    mejor_solucion = [float("inf"), []]  # [demanda_incumplida, tablero_optimo]
+    memo = {}
+
+    # Llamada inicial al backtracking
+    backtrack(0, tablero, filas_cumplidas, columnas_cumplidas, memo, mejor_solucion, barcos, n, m, demandas_filas, demandas_columnas)
+
+    return {
+        "tablero_optimo": mejor_solucion[1],
+        "demanda_cumplida": sum(demandas_filas) + sum(demandas_columnas) - mejor_solucion[0],
+        "demanda_total": sum(demandas_filas) + sum(demandas_columnas)
+    }
+    
+    
 def main():
     # Dimensiones del tablero
-    n, m, barcos, demandas_filas, demandas_columnas = procesar_archivo("3_3_2.txt")
-    print(n, m, barcos, demandas_filas, demandas_columnas)
+    n, m, barcos, demandas_filas, demandas_columnas = procesar_archivo("30_25_25.txt")
     # Resolver
-    solucion = resolver_problema(n, m, barcos, demandas_filas, demandas_columnas)
+    solucion = resolver_tablero(n, m, barcos, demandas_filas, demandas_columnas)
 
     # Imprimir resultados
-    print("Mejor tablero encontrado:")
-    print(solucion[0])
-    print("Posiciones de los barcos:")
-    for i, pos in enumerate(solucion[2]):
-        print(f"{i}: {pos}")
-    print("Demanda cumplida:", solucion[3])
-    print("Demanda total:", sum(demandas_filas) + sum(demandas_columnas))
+    for key, value in solucion.items():
+        print(f"{key}: {value}")
 
-#main()
+main()
+#5_5_6 tiene que dar 18 y da 14
+#12_12_21 tiene que dar 46 y da 40
+#30_25_25 tiene que dar 202 y da 150
+
+
