@@ -1,4 +1,4 @@
-
+from lector_casos import leer_casos_de_prueba
 
 def naval_battle_solver(n, m, ship_lengths, row_restrictions, col_restrictions):
     import numpy as np
@@ -50,8 +50,11 @@ def naval_battle_solver(n, m, ship_lengths, row_restrictions, col_restrictions):
         else:
             for i in range(length):
                 board[x + i, y] = 1
-
+    last_ships = None
     while ships:
+        if last_ships == ships:
+            ships.remove(ships[0])
+            continue
         
         row_demand = [(i, row_restrictions[i]) for i in range(n) if row_restrictions[i] > 0]
         col_demand = [(j, col_restrictions[j]) for j in range(m) if col_restrictions[j] > 0]
@@ -71,6 +74,7 @@ def naval_battle_solver(n, m, ship_lengths, row_restrictions, col_restrictions):
                             col_restrictions[start_col + i] -= 1
                         ships.remove(ship)
                         placed = True
+                        last_ships = ships
                         break
                 if placed:
                     break
@@ -86,8 +90,15 @@ def naval_battle_solver(n, m, ship_lengths, row_restrictions, col_restrictions):
                             row_restrictions[start_row + i] -= 1
                         ships.remove(ship)
                         placed = True
+                        last_ships = ships
                         break
                 if placed:
                     break
 
+
     return board
+
+row_demands, column_demands, boat_lengths = leer_casos_de_prueba("parte5/TP3/5_5_6.txt")
+n = len(row_demands)
+m = len(column_demands)
+print(naval_battle_solver(n, m, boat_lengths, row_demands, column_demands))
