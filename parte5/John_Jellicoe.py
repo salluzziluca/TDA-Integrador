@@ -25,10 +25,12 @@ def resolvedor_john_jellicoe(filename):
                 max_index = row_demands.index(max_row_demand)
                 if not cargar_barco_en_fila(tablero, boat_length, max_index, column_demands):
                     break
+                row_demands[max_index] -= boat_length
             else:
                 max_index = column_demands.index(max_column_demand)
                 if not cargar_barco_en_columna(tablero, boat_length, max_index, row_demands):
                     break
+                column_demands[max_index] -= boat_length
     
     return tablero
 
@@ -54,19 +56,22 @@ def es_posicion_valida(tablero, fila, columna, boat_length, horizontal):
     return True
 
 def cargar_barco_en_fila(tablero, boat_length, row, column_demands):
+    
     for start_col in range(len(column_demands) - boat_length + 1):
-        if all(column_demands[start_col + i] > 0 for i in range(boat_length)) and \
-           es_posicion_valida(tablero, row, start_col, boat_length, True):
+
+        if all(column_demands[start_col + i] > 0 for i in range(boat_length)) and es_posicion_valida(tablero, row, start_col, boat_length, True):
+
             for i in range(boat_length):
                 tablero[row][start_col + i] = 1
                 column_demands[start_col + i] -= 1
+
             return True
+        
     return False
 
 def cargar_barco_en_columna(tablero, boat_length, column, row_demands):
     for start_row in range(len(row_demands) - boat_length + 1):
-        if all(row_demands[start_row + i] > 0 for i in range(boat_length)) and \
-           es_posicion_valida(tablero, start_row, column, boat_length, False):
+        if all(row_demands[start_row + i] > 0 for i in range(boat_length)) and es_posicion_valida(tablero, start_row, column, boat_length, False):
             for i in range(boat_length):
                 tablero[start_row + i][column] = 1
                 row_demands[start_row + i] -= 1
@@ -74,7 +79,7 @@ def cargar_barco_en_columna(tablero, boat_length, column, row_demands):
     return False
 
 
-# resolvedor_john_jellicoe("parte5/TP3/3_3_2.txt")
+print_tablero(resolvedor_john_jellicoe("parte5/TP3/3_3_2.txt"))
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Resolver el problema de John Jellicoe para un caso de prueba dado.")
     parser.add_argument("filename", type=str, help="Nombre del archivo con los casos de prueba.")
