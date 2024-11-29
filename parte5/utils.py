@@ -27,3 +27,18 @@ def leer_casos_de_prueba(filename):
         boat_lengths = data[n_rows + n_cols:]
         
         return row_demands, column_demands, boat_lengths
+    
+def print_tablero(board, row_demands, column_demands):
+    max_num = max(max(row_demands), max(column_demands), 1)  
+    cell_width = len(str(max_num)) + 2  
+
+    col_header = " " * (cell_width + 1)  
+    col_header += "".join(f"{col:>{cell_width}}" for col in column_demands)
+    separator = " " * (cell_width + 1) + "-" * (len(column_demands) * cell_width)
+
+    print(col_header)
+    print(separator)
+
+    for demand, row in zip(row_demands, board):
+        row_str = "".join(f"{cell:>{cell_width}}" for cell in row)
+        print(f"{demand:>{cell_width - 1}} | {row_str}")

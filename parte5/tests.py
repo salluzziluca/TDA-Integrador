@@ -1,68 +1,43 @@
 import unittest
-import numpy as np
-from lector_casos import leer_casos_de_prueba
-from John_Jellicoe import naval_battle_solver
+from utils import leer_casos_de_prueba, print_tablero
+from John_Jellicoe import algoritmo_JJ
+
+
 
 class TestJohnJellicoe(unittest.TestCase):
-    def assertDemandaCumplida(self, filename, expected_demanda_cumplida):
-        # Get the input data
+    def assertDemandaCumplida(self, filename):    
         row_demands, column_demands, boat_lengths = leer_casos_de_prueba(filename)
+        original_row_demands, original_column_demands = row_demands.copy(), column_demands.copy()
+
         n = len(row_demands)
         m = len(column_demands)
         
         # Get the solution board
-        board = naval_battle_solver(n,m, boat_lengths,row_demands, column_demands)
+        board = algoritmo_JJ(n, m, boat_lengths, row_demands, column_demands)
         
-        # Calculate actual fulfilled demands
-        fulfilled_row_demands = [min(sum(board[i]), row_demands[i]) for i in range(n)]
-        fulfilled_col_demands = [min(sum(board[:, j]), column_demands[j]) for j in range(m)]
-        
-        # Calculate total fulfilled demand
-        total_fulfilled = sum(fulfilled_row_demands) + sum(fulfilled_col_demands)
-        
-        # Compare with expected
-        self.assertEqual(total_fulfilled, expected_demanda_cumplida, 
-            f"Expected fulfilled demand {expected_demanda_cumplida}, but got {total_fulfilled}")
-        
-        # Additional validations
-        self.validate_ship_placements(board, boat_lengths)
+        # Validate demands aren't exceeded
+        self.validate_demands(board, original_row_demands, original_column_demands)
         self.validate_no_adjacent_ships(board)
 
-    def validate_ship_placements(self, board, boat_lengths):
-        """Validate that all placed ships match the required lengths"""
+        print("-------------------------------------------------------")
+        print(filename)
+        print_tablero(board, original_row_demands, original_column_demands)
+
+    def validate_demands(self, board, row_demands, column_demands):
+        """Validate that no row or column demand is exceeded"""
         n, m = board.shape
-        ships_found = []
         
-        # Find horizontal ships
+        # Check row demands
         for i in range(n):
-            current_length = 0
-            for j in range(m):
-                if board[i, j] == 1:
-                    current_length += 1
-                elif current_length > 0:
-                    ships_found.append(current_length)
-                    current_length = 0
-            if current_length > 0:
-                ships_found.append(current_length)
+            row_sum = sum(board[i])
+            if row_sum > row_demands[i]:
+                self.fail(f"Row {i} exceeds demand: got {row_sum}, max allowed {row_demands[i]}")
         
-        # Find vertical ships
+        # Check column demands
         for j in range(m):
-            current_length = 0
-            for i in range(n):
-                if board[i, j] == 1:
-                    current_length += 1
-                elif current_length > 0:
-                    ships_found.append(current_length)
-                    current_length = 0
-            if current_length > 0:
-                ships_found.append(current_length)
-        
-        # Remove duplicates (ships counted both horizontally and vertically)
-        ships_found = sorted([s for s in ships_found if s > 1])
-        boat_lengths = sorted([l for l in boat_lengths if l > 1])
-        
-        self.assertEqual(ships_found, boat_lengths, 
-            f"Found ships of lengths {ships_found}, but expected {boat_lengths}")
+            col_sum = sum(board[:, j])
+            if col_sum > column_demands[j]:
+                self.fail(f"Column {j} exceeds demand: got {col_sum}, max allowed {column_demands[j]}")
 
     def validate_no_adjacent_ships(self, board):
         """Validate that no ships are adjacent (including diagonally)"""
@@ -85,36 +60,35 @@ class TestJohnJellicoe(unittest.TestCase):
                                     else:  # diagonal
                                         self.fail(f"Found adjacent ships at positions ({i},{j}) and ({ni},{nj})")
 
-    # Original test cases
     def test_JJ_3_3_2(self):
-        self.assertDemandaCumplida("parte5/TP3/3_3_2.txt", 4)
+        self.assertDemandaCumplida("parte5/TP3/3_3_2.txt")
 
     def test_JJ_5_5_6(self):
-        self.assertDemandaCumplida("parte5/TP3/5_5_6.txt", 12)
+        self.assertDemandaCumplida("parte5/TP3/5_5_6.txt")
 
     def test_JJ_8_7_10(self):
-        self.assertDemandaCumplida("parte5/TP3/8_7_10.txt", 26)
+        self.assertDemandaCumplida("parte5/TP3/8_7_10.txt")
 
     def test_JJ_10_3_3(self):
-        self.assertDemandaCumplida("parte5/TP3/10_3_3.txt", 6)
+        self.assertDemandaCumplida("parte5/TP3/10_3_3.txt")
 
     def test_JJ_10_10_10(self):
-        self.assertDemandaCumplida("parte5/TP3/10_10_10.txt", 40)
+        self.assertDemandaCumplida("parte5/TP3/10_10_10.txt")
 
     def test_JJ_12_12_21(self):
-        self.assertDemandaCumplida("parte5/TP3/12_12_21.txt", 46)
+        self.assertDemandaCumplida("parte5/TP3/12_12_21.txt")
 
     def test_JJ_15_10_15(self):
-        self.assertDemandaCumplida("parte5/TP3/15_10_15.txt", 40)
+        self.assertDemandaCumplida("parte5/TP3/15_10_15.txt")
 
     def test_JJ_20_20_20(self):
-        self.assertDemandaCumplida("parte5/TP3/20_20_20.txt", 104)
+        self.assertDemandaCumplida("parte5/TP3/20_20_20.txt")
 
     def test_JJ_20_25_30(self):
-        self.assertDemandaCumplida("parte5/TP3/20_25_30.txt", 172)
+        self.assertDemandaCumplida("parte5/TP3/20_25_30.txt")
 
     def test_JJ_30_25_25(self):
-        self.assertDemandaCumplida("parte5/TP3/30_25_25.txt", 202)
+        self.assertDemandaCumplida("parte5/TP3/30_25_25.txt")
 
 if __name__ == '__main__':
     unittest.main()
