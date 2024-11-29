@@ -11,7 +11,7 @@ def resolvedor_john_jellicoe(filename):
     m = len(column_demands)
     tablero = [[0] * m for _ in range(n)]
     
-    boat_lengths.sort(reverse=True)  # Ordenar barcos de mayor a menor longitud
+    boat_lengths.sort(reverse=True) 
     
     for boat_length in boat_lengths:
         while True:
@@ -19,7 +19,7 @@ def resolvedor_john_jellicoe(filename):
             max_column_demand = max(column_demands)
             
             if max_row_demand == 0 and max_column_demand == 0:
-                break  # No quedan demandas
+                break  
             
             if max_row_demand >= max_column_demand:
                 max_index = row_demands.index(max_row_demand)
@@ -30,27 +30,27 @@ def resolvedor_john_jellicoe(filename):
                 if not cargar_barco_en_columna(tablero, boat_length, max_index, row_demands):
                     break
     
-    print_tablero(tablero)
-
+    return tablero
 
 def es_posicion_valida(tablero, fila, columna, boat_length, horizontal):
     n, m = len(tablero), len(tablero[0])
+    
+    if horizontal and columna + boat_length > m:
+        return False
+    if not horizontal and fila + boat_length > n:
+        return False
+
     if horizontal:
-        if columna + boat_length > m:
-            return False
-        for c in range(columna, columna + boat_length):
-            if tablero[fila][c] == 1 or \
-               (fila > 0 and tablero[fila - 1][c] == 1) or \
-               (fila < n - 1 and tablero[fila + 1][c] == 1):
-                return False
+        for c in range(max(0, columna - 1), min(m, columna + boat_length + 1)):
+            for r in range(max(0, fila - 1), min(n, fila + 2)):
+                if tablero[r][c] == 1:
+                    return False
     else:
-        if fila + boat_length > n:
-            return False
-        for r in range(fila, fila + boat_length):
-            if tablero[r][columna] == 1 or \
-               (columna > 0 and tablero[r][columna - 1] == 1) or \
-               (columna < m - 1 and tablero[r][columna + 1] == 1):
-                return False
+        for r in range(max(0, fila - 1), min(n, fila + boat_length + 1)):
+            for c in range(max(0, columna - 1), min(m, columna + 2)):
+                if tablero[r][c] == 1:
+                    return False
+    
     return True
 
 def cargar_barco_en_fila(tablero, boat_length, row, column_demands):
@@ -73,16 +73,17 @@ def cargar_barco_en_columna(tablero, boat_length, column, row_demands):
             return True
     return False
 
+
+# resolvedor_john_jellicoe("parte5/TP3/3_3_2.txt")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Resolver el problema de John Jellicoe para un caso de prueba dado.")
     parser.add_argument("filename", type=str, help="Nombre del archivo con los casos de prueba.")
     args = parser.parse_args()
-
     # ejs
-    # python John_Jellicoe.py TP3/3_3_2.txt
-    # python John_Jellicoe.py TP3/8_7_10.txt
-    # python John_Jellicoe.py TP3/10_3_3.txt
-    # python John_Jellicoe.py TP3/12_12_21.txt
-    # python John_Jellicoe.py TP3/20_20_20.txt
-    # python John_Jellicoe.py TP3/30_25_25.txt
-    resolvedor_john_jellicoe(args.filename)
+    # python parte5/John_Jellicoe.py parte5/TP3/3_3_2.txt
+    # python parte5/John_Jellicoe.py parte5/TP3/8_7_10.txt
+    # python parte5/John_Jellicoe.py parte5/TP3/10_3_3.txt
+    # python parte5/John_Jellicoe.py parte5/TP3/12_12_21.txt
+    # python parte5/John_Jellicoe.py parte5/TP3/20_20_20.txt
+    # python parte5/John_Jellicoe.py parte5/TP3/30_25_25.txt
+    print_tablero(resolvedor_john_jellicoe(args.filename))
