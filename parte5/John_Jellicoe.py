@@ -10,74 +10,68 @@ def resolvedor_john_jellicoe(filename):
     n = len(row_demands)
     m = len(column_demands)
     tablero = [[0] * m for _ in range(n)]
-    
-    boat_lengths.sort(reverse=True) 
-    
-    for boat_length in boat_lengths:
-        while True:
-            max_row_demand = max(row_demands)
-            max_column_demand = max(column_demands)
-            
-            if max_row_demand == 0 and max_column_demand == 0:
-                break  
-            
-            if max_row_demand >= max_column_demand:
-                max_index = row_demands.index(max_row_demand)
-                if not cargar_barco_en_fila(tablero, boat_length, max_index, column_demands):
-                    break
-                row_demands[max_index] -= boat_length
-            else:
-                max_index = column_demands.index(max_column_demand)
-                if not cargar_barco_en_columna(tablero, boat_length, max_index, row_demands):
-                    break
-                column_demands[max_index] -= boat_length
-    
-    return tablero
-
-def es_posicion_valida(tablero, fila, columna, boat_length, horizontal):
-    n, m = len(tablero), len(tablero[0])
-    
-    if horizontal and columna + boat_length > m:
-        return False
-    if not horizontal and fila + boat_length > n:
-        return False
-
-    if horizontal:
-        for c in range(max(0, columna - 1), min(m, columna + boat_length + 1)):
-            for r in range(max(0, fila - 1), min(n, fila + 2)):
-                if tablero[r][c] == 1:
-                    return False
+    max_row_demand = max(row_demands)
+    max_column_demand = max(column_demands)
+    max_boat_length = max(boat_lengths)
+    if max_row_demand> max_column_demand:
+        max_index = row_demands.index(max_row_demand)
+        cargar_barco_en_fila(tablero, max_boat_length, max_index, column_demands)
+        #poner barco en max row
     else:
-        for r in range(max(0, fila - 1), min(n, fila + boat_length + 1)):
-            for c in range(max(0, columna - 1), min(m, columna + 2)):
-                if tablero[r][c] == 1:
-                    return False
-    
-    return True
-
-def cargar_barco_en_fila(tablero, boat_length, row, column_demands):
-    
-    for start_col in range(len(column_demands) - boat_length + 1):
-
-        if all(column_demands[start_col + i] > 0 for i in range(boat_length)) and es_posicion_valida(tablero, row, start_col, boat_length, True):
-
-            for i in range(boat_length):
-                tablero[row][start_col + i] = 1
-                column_demands[start_col + i] -= 1
-
-            return True
+            #poner barco en max column
+        max_index = column_demands.index(max_column_demand)
+        cargar_barco_en_columna(tablero, max_boat_length, max_index, row_demands)
+    return tablero
         
-    return False
-
 def cargar_barco_en_columna(tablero, boat_length, column, row_demands):
-    for start_row in range(len(row_demands) - boat_length + 1):
-        if all(row_demands[start_row + i] > 0 for i in range(boat_length)) and es_posicion_valida(tablero, start_row, column, boat_length, False):
-            for i in range(boat_length):
-                tablero[start_row + i][column] = 1
-                row_demands[start_row + i] -= 1
+    """Esta funcion recibe un tablero, un bote y una columna. Para todas las filas de esa columna se fija si puede agregar el barco (chequeando las demandas) y si puede lo agrega"""
+    valid_rows=[]
+    i=0
+    while i<len(row_demands):
+        demand = row_demands[i]
+        if demand>0:
+            valid_rows.append(row_demands.index(demand))
+        i+=1
+    # if len(valid_rows)>=boat_length:
+    #     for row in valid_rows:
+    #         tablero[row][column]=1
+    #     return True
+    # miro si hay valid rows contiguas = boat_length
+    valid_rows_contiguas= []
+    for i in range(len(valid_rows)):
+        if i==0 :
+            valid_rows_contiguas.append(valid_rows[i])
+        if valid_rows[i]==valid_rows[i-1]:
+            valid_rows_contiguas.append(valid_rows[i])
+        if len(valid_rows_contiguas)==boat_length:
+            for row in valid_rows_contiguas:
+                tablero[row][column]=1
+            return True
+    return False        
+    
+def cargar_barco_en_fila(tablero, boat_length, row, column_demands):
+    """Esta funcion recibe un tablero, un bote y una fila. Para todas las columnas de esa fila se fija si puede agregar el barco (chequeando las demandas) y si puede lo agrega"""
+    valid_columns=[]
+    i=0
+    while i<len(column_demands):
+        demand = column_demands[i]
+        if demand>0:
+            valid_columns.append(column_demands.index(demand))
+        i+=1
+    # if len(valid_columns)>=boat_length:
+    #     for column in valid_columns:
+    #         tablero[row][column]=1
+    #     return True
+    # miro si hay valid columns contiguas = boat_length
+    valid_columns_contiguas= []
+    for i in range(len(valid_columns)):
+        if valid_columns[i]==valid_columns[i-1]+1:
+            valid_columns_contiguas.append(valid_columns[i])
+        if len(valid_columns_contiguas)==boat_length:
+            for column in valid_columns_contiguas:
+                tablero[row][column]=1
             return True
     return False
-
 
 print_tablero(resolvedor_john_jellicoe("parte5/TP3/3_3_2.txt"))
 if __name__ == "__main__":
