@@ -1,88 +1,93 @@
-import argparse
-from lector_casos import leer_casos_de_prueba
 
-def print_tablero(tablero):
-    for fila in tablero:
-        print(fila)
-        
-def resolvedor_john_jellicoe(filename):
-    row_demands, column_demands, boat_lengths = leer_casos_de_prueba(filename)
-    n = len(row_demands)
-    m = len(column_demands)
-    tablero = [[0] * m for _ in range(n)]
-    max_row_demand = max(row_demands)
-    max_column_demand = max(column_demands)
-    max_boat_length = max(boat_lengths)
-    if max_row_demand> max_column_demand:
-        max_index = row_demands.index(max_row_demand)
-        cargar_barco_en_fila(tablero, max_boat_length, max_index, column_demands)
-        #poner barco en max row
-    else:
-            #poner barco en max column
-        max_index = column_demands.index(max_column_demand)
-        cargar_barco_en_columna(tablero, max_boat_length, max_index, row_demands)
-    return tablero
-        
-def cargar_barco_en_columna(tablero, boat_length, column, row_demands):
-    """Esta funcion recibe un tablero, un bote y una columna. Para todas las filas de esa columna se fija si puede agregar el barco (chequeando las demandas) y si puede lo agrega"""
-    valid_rows=[]
-    i=0
-    while i<len(row_demands):
-        demand = row_demands[i]
-        if demand>0:
-            valid_rows.append(row_demands.index(demand))
-        i+=1
-    # if len(valid_rows)>=boat_length:
-    #     for row in valid_rows:
-    #         tablero[row][column]=1
-    #     return True
-    # miro si hay valid rows contiguas = boat_length
-    valid_rows_contiguas= []
-    for i in range(len(valid_rows)):
-        if i==0 :
-            valid_rows_contiguas.append(valid_rows[i])
-        if valid_rows[i]==valid_rows[i-1]:
-            valid_rows_contiguas.append(valid_rows[i])
-        if len(valid_rows_contiguas)==boat_length:
-            for row in valid_rows_contiguas:
-                tablero[row][column]=1
-            return True
-    return False        
-    
-def cargar_barco_en_fila(tablero, boat_length, row, column_demands):
-    """Esta funcion recibe un tablero, un bote y una fila. Para todas las columnas de esa fila se fija si puede agregar el barco (chequeando las demandas) y si puede lo agrega"""
-    valid_columns=[]
-    i=0
-    while i<len(column_demands):
-        demand = column_demands[i]
-        if demand>0:
-            valid_columns.append(column_demands.index(demand))
-        i+=1
-    # if len(valid_columns)>=boat_length:
-    #     for column in valid_columns:
-    #         tablero[row][column]=1
-    #     return True
-    # miro si hay valid columns contiguas = boat_length
-    valid_columns_contiguas= []
-    for i in range(len(valid_columns)):
-        if valid_columns[i]==valid_columns[i-1]+1:
-            valid_columns_contiguas.append(valid_columns[i])
-        if len(valid_columns_contiguas)==boat_length:
-            for column in valid_columns_contiguas:
-                tablero[row][column]=1
-            return True
-    return False
 
-print_tablero(resolvedor_john_jellicoe("parte5/TP3/3_3_2.txt"))
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Resolver el problema de John Jellicoe para un caso de prueba dado.")
-    parser.add_argument("filename", type=str, help="Nombre del archivo con los casos de prueba.")
-    args = parser.parse_args()
-    # ejs
-    # python parte5/John_Jellicoe.py parte5/TP3/3_3_2.txt
-    # python parte5/John_Jellicoe.py parte5/TP3/8_7_10.txt
-    # python parte5/John_Jellicoe.py parte5/TP3/10_3_3.txt
-    # python parte5/John_Jellicoe.py parte5/TP3/12_12_21.txt
-    # python parte5/John_Jellicoe.py parte5/TP3/20_20_20.txt
-    # python parte5/John_Jellicoe.py parte5/TP3/30_25_25.txt
-    print_tablero(resolvedor_john_jellicoe(args.filename))
+def naval_battle_solver(n, m, ship_lengths, row_restrictions, col_restrictions):
+    import numpy as np
+
+    board = np.zeros((n, m), dtype=int)
+
+    ships = sorted(ship_lengths, reverse=True)
+
+    def can_place_ship(board, x, y, length, is_horizontal):
+        if is_horizontal:
+            if y + length > m:  
+                return False
+            for i in range(length):
+                if board[x, y + i] == 1 or \
+                   (x > 0 and board[x - 1, y + i] == 1) or \
+                   (x < n - 1 and board[x + 1, y + i] == 1) or \
+                   (x > 0 and y + i > 0 and board[x - 1, y + i - 1] == 1) or \
+                   (x > 0 and y + i < m - 1 and board[x - 1, y + i + 1] == 1) or \
+                   (x < n - 1 and y + i > 0 and board[x + 1, y + i - 1] == 1) or \
+                   (x < n - 1 and y + i < m - 1 and board[x + 1, y + i + 1] == 1):
+                    return False
+            if y > 0 and board[x, y - 1] == 1:
+                return False
+            if y + length < m and board[x, y + length] == 1:
+                return False
+        else:  
+            if x + length > n:  
+                return False
+            for i in range(length):
+              
+                if board[x + i, y] == 1 or \
+                   (y > 0 and board[x + i, y - 1] == 1) or \
+                   (y < m - 1 and board[x + i, y + 1] == 1) or \
+                   (x + i > 0 and y > 0 and board[x + i - 1, y - 1] == 1) or \
+                   (x + i > 0 and y < m - 1 and board[x + i - 1, y + 1] == 1) or \
+                   (x + i < n - 1 and y > 0 and board[x + i + 1, y - 1] == 1) or \
+                   (x + i < n - 1 and y < m - 1 and board[x + i + 1, y + 1] == 1):
+                    return False
+            if x > 0 and board[x - 1, y] == 1:
+                return False
+            if x + length < n and board[x + length, y] == 1:
+                return False
+        return True
+
+    def place_ship(board, x, y, length, is_horizontal):
+        if is_horizontal:
+            for i in range(length):
+                board[x, y + i] = 1
+        else:
+            for i in range(length):
+                board[x + i, y] = 1
+
+    while ships:
+        
+        row_demand = [(i, row_restrictions[i]) for i in range(n) if row_restrictions[i] > 0]
+        col_demand = [(j, col_restrictions[j]) for j in range(m) if col_restrictions[j] > 0]
+
+        if not row_demand and not col_demand:
+            break  
+
+        if row_demand and (not col_demand or max(row_demand, key=lambda x: x[1])[1] >= max(col_demand, key=lambda x: x[1])[1]):
+            target_row = max(row_demand, key=lambda x: x[1])[0]
+            for ship in ships:
+                placed = False
+                for start_col in range(m):
+                    if can_place_ship(board, target_row, start_col, ship, True):
+                        place_ship(board, target_row, start_col, ship, True)
+                        row_restrictions[target_row] -= ship
+                        for i in range(ship):
+                            col_restrictions[start_col + i] -= 1
+                        ships.remove(ship)
+                        placed = True
+                        break
+                if placed:
+                    break
+        else:
+            target_col = max(col_demand, key=lambda x: x[1])[0]
+            for ship in ships:
+                placed = False
+                for start_row in range(n):
+                    if can_place_ship(board, start_row, target_col, ship, False):
+                        place_ship(board, start_row, target_col, ship, False)
+                        col_restrictions[target_col] -= ship
+                        for i in range(ship):
+                            row_restrictions[start_row + i] -= 1
+                        ships.remove(ship)
+                        placed = True
+                        break
+                if placed:
+                    break
+
+    return board
