@@ -50,55 +50,57 @@ def naval_battle_solver(n, m, ship_lengths, row_restrictions, col_restrictions):
         else:
             for i in range(length):
                 board[x + i, y] = 1
-    last_ships = None
+
     while ships:
-        if last_ships == ships:
-            ships.remove(ships[0])
-            continue
-        
         row_demand = [(i, row_restrictions[i]) for i in range(n) if row_restrictions[i] > 0]
         col_demand = [(j, col_restrictions[j]) for j in range(m) if col_restrictions[j] > 0]
 
         if not row_demand and not col_demand:
             break  
 
-        if row_demand and (not col_demand or max(row_demand, key=lambda x: x[1])[1] >= max(col_demand, key=lambda x: x[1])[1]):
-            target_row = max(row_demand, key=lambda x: x[1])[0]
-            for ship in ships:
-                placed = False
-                for start_col in range(m):
-                    if can_place_ship(board, target_row, start_col, ship, True):
-                        place_ship(board, target_row, start_col, ship, True)
-                        row_restrictions[target_row] -= ship
-                        for i in range(ship):
-                            col_restrictions[start_col + i] -= 1
-                        ships.remove(ship)
-                        placed = True
-                        last_ships = ships
-                        break
-                if placed:
+        ship_placed = False  # para verificar si el barco se colocó en esta iteración
+
+        for ship in ships:
+            # Intentar colocar el barco en una fila
+            if row_demand and (not col_demand or max(row_demand, key=lambda x: x[1])[1] >= max(col_demand, key=lambda x: x[1])[1]):
+                target_row = max(row_demand, key=lambda x: x[1])[0]
+                if row_restrictions[target_row] >= ship:  # Verificar si la fila puede acomodar el barco
+                    for start_col in range(m):
+                        if can_place_ship(board, target_row, start_col, ship, True):
+                            place_ship(board, target_row, start_col, ship, True)
+                            row_restrictions[target_row] -= ship
+                            for i in range(ship):
+                                col_restrictions[start_col + i] -= 1
+                            ships.remove(ship)
+                            ship_placed = True
+                            break
+                if ship_placed:
                     break
-        else:
-            target_col = max(col_demand, key=lambda x: x[1])[0]
-            for ship in ships:
-                placed = False
-                for start_row in range(n):
-                    if can_place_ship(board, start_row, target_col, ship, False):
-                        place_ship(board, start_row, target_col, ship, False)
-                        col_restrictions[target_col] -= ship
-                        for i in range(ship):
-                            row_restrictions[start_row + i] -= 1
-                        ships.remove(ship)
-                        placed = True
-                        last_ships = ships
-                        break
-                if placed:
+
+            # Intentar colocar el barco en una columna
+            if col_demand and not ship_placed:
+                target_col = max(col_demand, key=lambda x: x[1])[0]
+                if col_restrictions[target_col] >= ship:  # Verificar si la columna puede acomodar el barco
+                    for start_row in range(n):
+                        if can_place_ship(board, start_row, target_col, ship, False):
+                            place_ship(board, start_row, target_col, ship, False)
+                            col_restrictions[target_col] -= ship
+                            for i in range(ship):
+                                row_restrictions[start_row + i] -= 1
+                            ships.remove(ship)
+                            ship_placed = True
+                            break
+                if ship_placed:
                     break
+
+        # Si no se pudo colocar ningún barco en esta iteración, salimos del bucle
+        if not ship_placed:
+            break
 
 
     return board
 
-row_demands, column_demands, boat_lengths = leer_casos_de_prueba("parte5/TP3/5_5_6.txt")
+row_demands, column_demands, boat_lengths = leer_casos_de_prueba("parte5/TP3/10_10_10.txt")
 n = len(row_demands)
 m = len(column_demands)
 print(naval_battle_solver(n, m, boat_lengths, row_demands, column_demands))
