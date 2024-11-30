@@ -1,178 +1,208 @@
+
+import copy
 from csv_casos import procesar_archivo
 import time
+
+LUGAR_LIBRE = -1
+#100% funcional, por si acaso no tocar
+#corre los tests de la catedra en 80segs aprox.
+                
+                
+def adyacentes_libres(i_inicial, j_inicial, i_final, j_final, matriz, filas, columnas):
+    for i in range(i_inicial, i_final+1):
+        if filas[i] == 0:
+            return False
+        
+        for j in range(j_inicial, j_final+1):
+            if matriz[i][j] != LUGAR_LIBRE:
+                return False
+            if columnas[j] == 0:
+                return False
+            if (j+1 < len(columnas) and matriz[i][j+1] != LUGAR_LIBRE) or (j-1 >= 0 and matriz[i][j-1] != LUGAR_LIBRE):
+                return False
+            if (i+1 < len(filas) and matriz[i+1][j] != LUGAR_LIBRE) or (i-1 >= 0 and matriz[i-1][j] != LUGAR_LIBRE):
+                return False
+    return True
+
+def backtrack(matriz, barcos, idx, filas, columnas, suma_filas, suma_columnas, mejor, dicc_pos_filas, dicc_pos_columnas, suma_restantes, estados_visitados, posiciones_barcos):
+    if idx >= len(barcos) or suma_columnas == 0 or suma_filas == 0 or barcos[-1][0] > suma_columnas or barcos[-1][0] > suma_filas:
+        return (copy.deepcopy(matriz), suma_columnas+suma_filas) if suma_columnas+suma_filas < mejor[1] else mejor
+    
+    barco = barcos[idx][0]
+    estado_actual =(tuple(filas), tuple(columnas), barco)
+    
+    if estado_actual in estados_visitados:
+        return estados_visitados[estado_actual]
+
+    # Si no tengo posiciones para colocar el barco actual
+    if len(dicc_pos_columnas[barco]) == 0 and len(dicc_pos_filas[barco]) == 0:
+        return backtrack(matriz, barcos, idx+1, filas, columnas, suma_filas, suma_columnas, mejor, dicc_pos_filas, dicc_pos_columnas, suma_restantes-barco, estados_visitados, posiciones_barcos)
+
+    # Si la suma de las demandas incumplidas hasta ahora más la demanda que me queda por cumplir
+    # es mayor o igual a la mejor solución encontrada hasta el momento, corto la rama
+    if suma_columnas-suma_restantes + suma_filas-suma_restantes >= mejor[1]:
+        return mejor
+    
+    # Recorremos las posiciones disponibles para el barco en filas
+    posiciones_filas = dicc_pos_filas[barco].copy()
+    for (i,j) in posiciones_filas:
+        if matriz[i][j] != LUGAR_LIBRE or columnas[j] == 0 or filas[i] < barco:
+                continue
+        
+        # Intentamos colocar el barco horizontalmente
+        if adyacentes_libres(i, j-barco+1, i, j, matriz, filas, columnas):
+            dicc_pos_filas[barco].remove((i,j))
+            filas[i] -= barco
+            suma_filas -= barco
+            suma_columnas -= barco
+            for col in range(j-barco+1, j+1):
+                matriz[i][col] = barcos[idx][1]
+                columnas[col] -= 1
+
+            # Registramos la posición del barco en posiciones_barcos
+            posiciones_barcos[idx] = (i, j-barco+1, i, j)
+            
+            mejor = backtrack(matriz, barcos, idx+1, filas, columnas, suma_filas, suma_columnas, mejor, dicc_pos_filas, dicc_pos_columnas, suma_restantes-barco, estados_visitados, posiciones_barcos)
+            dicc_pos_filas[barco].add((i,j))
+            filas[i] += barco
+            suma_filas += barco
+            suma_columnas += barco
+            for col in range(j-barco+1, j+1):
+                matriz[i][col] = LUGAR_LIBRE
+                columnas[col] += 1
+            
+            if mejor[1] == 0:
+                return mejor
+        
+    # Recorremos las posiciones disponibles para el barco en columnas
+    posiciones_columnas = dicc_pos_columnas[barco].copy()
+    for (i,j) in posiciones_columnas:      
+        if matriz[i][j] != LUGAR_LIBRE or columnas[j] < barco or filas[i] == 0:
+            continue
+        
+        if adyacentes_libres(i-barco+1, j, i, j, matriz, filas, columnas):
+            dicc_pos_columnas[barco].remove((i,j))
+            columnas[j] -= barco
+            suma_filas -= barco
+            suma_columnas -= barco
+            for fil in range(i-barco+1, i+1):
+                matriz[fil][j] = barcos[idx][1]
+                filas[fil] -= 1
+            
+            # Registramos la posición del barco en posiciones_barcos
+            posiciones_barcos[idx] = (i-barco+1, j, i, j)
+            
+            mejor = backtrack(matriz, barcos, idx+1, filas, columnas, suma_filas, suma_columnas, mejor, dicc_pos_filas, dicc_pos_columnas, suma_restantes-barco, estados_visitados, posiciones_barcos)
+            dicc_pos_columnas[barco].add((i,j))
+            columnas[j] += barco
+            suma_filas += barco
+            suma_columnas += barco
+            for fil in range(i-barco+1, i+1):
+                matriz[fil][j] = LUGAR_LIBRE
+                filas[fil] += 1
+            
+            if mejor[1] == 0:
+                return mejor
+    
+    estados_visitados[estado_actual] = backtrack(matriz, barcos, idx+1, filas, columnas, suma_columnas, suma_filas, mejor, dicc_pos_filas, dicc_pos_columnas, suma_restantes-barco, estados_visitados, posiciones_barcos)
+    return estados_visitados[estado_actual]
+
+
+def buscar_largos_para_posicion(i, j, columnas, filas, dicc_posiciones_columnas, dicc_posiciones_filas, largo, max_barco):
+    if filas[i] == 0 or columnas[j] == 0:
+        return dicc_posiciones_columnas, dicc_posiciones_filas
+    columnas_cumple = False
+    filas_cumple = False
+    if filas[i] > 0:
+        dicc_posiciones_filas[1].add((i,j))
+        filas_cumple = True
+    if columnas[j] > 0:
+        dicc_posiciones_columnas[1].add((i,j))
+        columnas_cumple = True
+    for largo in range(2, max_barco+1):
+        if not filas_cumple and not columnas_cumple:
+            break
+        if columnas_cumple and (i, j-1) in dicc_posiciones_filas[largo-1] and filas[i] >= largo:
+            dicc_posiciones_filas[largo].add((i,j))
+        else:
+            columnas_cumple = False
+        if filas_cumple and (i-1, j) in dicc_posiciones_columnas[largo-1] and columnas[j] >= largo:
+                dicc_posiciones_columnas[largo].add((i,j))
+        else:
+            filas_cumple = False
+    return dicc_posiciones_columnas, dicc_posiciones_filas
+
 def ordenar_barcos_con_posicion(barcos):
-    barcos_indexados = []
+    barcos_ordenados = []
     for i in range(len(barcos)):
-        barcos_indexados.append([barcos[i], i])
+        barcos_ordenados.append([barcos[i], i])
     # Ordeno los barcos de mayor a menor
-    return sorted(barcos_indexados, key= lambda x:x[0],reverse=True)
+    return sorted(barcos_ordenados, key= lambda x:x[0],reverse=True)
+
+
+def resolver_tablero(barcos, filas, columnas, demandas_filas, demandas_columnas):
+    matriz = [[LUGAR_LIBRE]*len(columnas) for _ in filas]
+    mejor = (copy.deepcopy(matriz), demandas_filas + demandas_columnas)
+    barcos = ordenar_barcos_con_posicion(barcos)
+    posiciones_barcos = {}
+    dicc_posiciones_filas = {}
+    dicc_posiciones_columnas = {}
+    max_barco = barcos[0][0]
+
+    for largo in range(1, max_barco+1):
+        dicc_posiciones_filas[largo] = set()
+        dicc_posiciones_columnas[largo] = set()
     
-    prioridades = []
-    for barco in barcos:
-        prioridad_filas = sum(1 for i in range(n) if demandas_filas[i] > filas_cumplidas[i] and demandas_filas - filas_cumplidas >= barco)
-        prioridad_columnas = sum(1 for j in range(m) if demandas_columnas[j] > columnas_cumplidas[j] and demandas_columnas[j] - columnas_cumplidas[j] >= barco)
-        prioridades.append(barco, prioridad_filas + prioridad_columnas)
+    for i in range(len(filas)):
+        for j in range(len(columnas)):
+            dicc_posiciones_columnas, dicc_posiciones_filas = buscar_largos_para_posicion(
+                i, j, columnas, filas, dicc_posiciones_columnas, dicc_posiciones_filas, largo, max_barco
+            )
     
-    prioridades.sort(key=lambda x: (-x[1], -x[0]))
-    return [barco for barco, _ in prioridades]
+    estados_visitados = {}
+    matriz_optima, demanda_incumplida = backtrack(
+        matriz, barcos, 0, filas, columnas, demandas_filas, demandas_columnas,
+        mejor, dicc_posiciones_filas, dicc_posiciones_columnas,
+        sum(barco[0] for barco in barcos), estados_visitados, posiciones_barcos
+    )
 
-def actualizar_cumplidos(tablero, m, n):
-    filas_cumplidas = [sum(tablero[i]) for i in range(n)]
-    columnas_cumplidas = [sum(tablero[i][j] for i in range(n)) for j in range(m)]
-    return filas_cumplidas, columnas_cumplidas
-
-def calcular_demanda_incumplida(filas_cumplidas, columnas_cumplidas, demandas_filas, demandas_columnas, n, m, tablero, barcos_colocados):
-    fila_incumplida = sum(abs(demandas_filas[i] - filas_cumplidas[i]) for i in range(n))
-    columna_incumplida = sum(abs(demandas_columnas[j] - columnas_cumplidas[j]) for j in range(m))
-    return fila_incumplida + columna_incumplida
-
-
-def verificar_adyacencia(tablero, fila, columna, n, m):
-    """Verifica si una casilla está adyacente a un barco ya colocado."""
-    for df in [-1, 0, 1]:
-        for dc in [-1, 0, 1]:
-            nf, nc = fila + df, columna + dc
-            if 0 <= nf < n and 0 <= nc < m and tablero[nf][nc] == 1:
-                return False
-    return True
-
-def verificar_posicion(tablero, barco, fila, columna, orientacion, filas_cumplidas, columnas_cumplidas, demandas_filas, demandas_columnas, n, m):
-    """Verifica si un barco se puede colocar en una posición dada considerando todas las restricciones."""
-    if orientacion == "H":
-        if columna + barco > m or filas_cumplidas[fila] + barco > demandas_filas[fila]:
-            return False
-        for col in range(barco):
-            if (tablero[fila][columna + col] == 1 or columnas_cumplidas[columna + col] + 1 > demandas_columnas[columna + col] or not verificar_adyacencia(tablero, fila, columna + col, n, m)):
-                return False
-    else:  # orientacion == "V"
-        if fila + barco > n  or columnas_cumplidas[columna] + barco > demandas_columnas[columna]:
-            return False
-        for f in range(barco):
-            if (tablero[f + fila][columna] == 1 or filas_cumplidas[f + fila] + 1 > demandas_filas[f + fila] or not verificar_adyacencia(tablero, f + fila, columna, n, m)):
-                return False
-    return True
-
-def colocar_barco(tablero, barco, fila, columna, orientacion, valor):
-    """Coloca o retira un barco del tablero."""
-    if orientacion == "H":
-        for col in range(barco):
-            tablero[fila][columna + col] = valor
-    else:  # orientacion == "V"
-        for f in range(barco):
-            tablero[f + fila][columna] = valor
-
-def backtrack(idx, tablero, filas_cumplidas, columnas_cumplidas, memo, mejor_solucion, barcos, n, m, demandas_filas, demandas_columnas, posiciones_barcos, barcos_colocados):
-    estado = (idx, tuple(map(tuple, tablero)))
-    if estado in memo:
-        return memo[estado]
-    
-    if mejor_solucion[0] == 0:
-        return mejor_solucion[0]
-    
-    demanda_incumplida_actual = calcular_demanda_incumplida(filas_cumplidas, columnas_cumplidas, demandas_filas, demandas_columnas, n, m, tablero, barcos_colocados)
-
-    if demanda_incumplida_actual - (sum(barcos[idx:]) * 2)  > mejor_solucion[0]:
-        return float("inf")
-
-    if idx == len(barcos):
-        if demanda_incumplida_actual < mejor_solucion[0]:
-            mejor_solucion[0] = demanda_incumplida_actual
-            mejor_solucion[1] = [row[:] for row in tablero]
-            mejor_solucion[2] = posiciones_barcos.copy()
-        return demanda_incumplida_actual
-
-    barco = barcos[idx]
-    for fila in range(n):
-        for columna in range(m):
-            for orientacion in ["H", "V"]:
-                if verificar_posicion(tablero, barco, fila, columna, orientacion, filas_cumplidas, columnas_cumplidas, demandas_filas, demandas_columnas, n, m):
-                    colocar_barco(tablero, barco, fila, columna, orientacion, 1)
-                    posiciones_barcos[idx] = (fila, columna, fila if orientacion == "H" else fila + barco - 1, columna + barco - 1 if orientacion == "H" else columna)
-                   # if orientacion == "H":
-                    #    suma_columnas_nueva = suma_columnas + barco
-                     #   suma_filas_nueva = suma_filas + 1
-                      #  nuevas_filas[fila] =  filas_cumplidas[fila] + 1
-                       # for col in range(barco):
-                        #    nuevas_columnas[columna + col] = columnas_cumplidas[columna + col] + 1
-                            
-                    #else:  # orientacion == "V"
-                       # suma_columnas_nueva = suma_columnas + 1
-                        #suma_filas_nueva = suma_filas + barco
-                        #nuevas_columnas[fila] = columnas_cumplidas[fila] + 1
-                        #for f in range(barco):
-                         #   nuevas_filas[fila + f] = filas_cumplidas[fila + f] + 1
-                    nuevas_filas, nuevas_columnas = actualizar_cumplidos(tablero, m, n)
-                    backtrack(idx + 1, tablero, nuevas_filas, nuevas_columnas, memo, mejor_solucion, barcos, n, m, demandas_filas, demandas_columnas, posiciones_barcos, barcos_colocados)
-                    colocar_barco(tablero, barco, fila, columna, orientacion, 0)
-                    posiciones_barcos[idx] = None
-
-    # Considera no colocar el barco actual
-    resultado = backtrack(idx + 1, tablero, filas_cumplidas, columnas_cumplidas, memo, mejor_solucion, barcos, n, m, demandas_filas, demandas_columnas, posiciones_barcos, barcos_colocados)
-    # Guarda el resultado en la tabla de memoización
-    memo[estado] = resultado
-    return resultado
-
-def resolver_tablero(n, m, barcos, demandas_filas, demandas_columnas):
-    barcos.sort(reverse=True)
-    #ordenar_barcos_con_posicion(barcos)
-
-    tablero = [[0] * m for _ in range(n)]
-    filas_cumplidas, columnas_cumplidas = actualizar_cumplidos(tablero, m, n)
-   # nuevas_filas, nuevas_columnas = actualizar_cumplidos(tablero, m, n)
-    #suma_filas = 0
-    #suma_columnas = 0
-    demanda_total = sum(demandas_filas) + sum(demandas_columnas)
-    mejor_solucion = [float("inf"), [], []]  # [demanda_incumplida, tablero_optimo, posiciones_barcos]
-    memo = {}
-    posiciones_barcos = {i: None for i in range(len(barcos))}
-    barcos_colocados = set()
-
-    backtrack(0, tablero, filas_cumplidas, columnas_cumplidas, memo, mejor_solucion, barcos, n, m, demandas_filas, demandas_columnas, posiciones_barcos, barcos_colocados)
-
-    tablero_optimo = mejor_solucion[1]
-    tablero_formateado = [["-" if cell == 0 else "1" for cell in row] for row in tablero_optimo]
-
+    demanda_cumplida = demandas_filas + demandas_columnas - demanda_incumplida
     return {
-        "tablero_optimo": tablero_formateado,
-        "demanda_cumplida": sum(demandas_filas) + sum(demandas_columnas) - mejor_solucion[0],
-        "demanda_total": sum(demandas_filas) + sum(demandas_columnas),
-        "posiciones_barcos": mejor_solucion[2],
+        "tablero_optimo": matriz_optima,
+        "demanda_cumplida": demanda_cumplida,
+        "demanda_total": demandas_filas + demandas_columnas,
+        "posiciones_barcos": posiciones_barcos
     }
 
-
 def main():
-#30_25_25 deberia dar 202 pero da 150
-#20_20_20 deberia dar 104 pero da 96
-#12_12_21 deberia dar 46 pero da 40 demanda_filas = [3, 6, 1, 2, 3, 6, 5, 2, 0, 3, 0, 3], barcos = [4, 3, 7, 4, 3, 2, 2, 5, 5, 5, 4, 4, 5, 5, 7, 6, 4, 1, 7, 7, 4], demanda_columnas = [3, 0, 1, 1, 3, 1, 0, 3, 3, 4, 1, 4]
-#10_10_10 deberia dar 40 pero da 36 demanda_filas = [2, 4, 2, 1, 1, 2, 3, 0], barcos = [4, 3, 3, 2, 2, 2, 1, 1, 1, 1], demanda_columnas = [1, 2, 1, 3, 2, 2, 3, 1, 5, 0]
-
-    n, m, barcos, demandas_filas, demandas_columnas = procesar_archivo("12_12_21.txt")
+    # Cambiar el nombre del archivo según el caso
+    barcos, filas, columnas = procesar_archivo("12_12_21.txt")
+    demandas_filas = sum(filas)
+    demandas_columnas = sum(columnas)
+    
     start = time.time()
-    solucion = resolver_tablero(n, m, barcos, demandas_filas, demandas_columnas)
+    solucion = resolver_tablero(barcos, filas, columnas, demandas_filas, demandas_columnas)
     end = time.time()
     
-
     tablero = solucion["tablero_optimo"]
+    tablero_formateado = [["-" if cell == -1 else str(cell) for cell in row] for row in tablero]
     demanda_cumplida = solucion["demanda_cumplida"]
     demanda_total = solucion["demanda_total"]
     posiciones_barcos = solucion["posiciones_barcos"]
 
     print("Tablero óptimo:")
-    for fila in tablero:
-        print(" ".join(fila))
+    for fila in tablero_formateado:
+        print(" ".join(map(str, fila)))
     print("\nDemanda cumplida:", demanda_cumplida)
     print("Demanda total:", demanda_total)
+    print("\nTiempo de ejecución:", end - start, "segundos")
+
+    # Imprimir las posiciones de los barcos
     print("\nPosiciones de los barcos:")
     for idx, pos in posiciones_barcos.items():
         if pos is not None:
             print(f"Barco {idx + 1}: ({pos[0]},{pos[1]}) -> ({pos[2]},{pos[3]})")
         else:
             print(f"Barco {idx + 1}: No colocado")
-            
-    print(end - start)
-        
 
 main()
-
-
-
