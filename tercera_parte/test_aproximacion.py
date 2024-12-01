@@ -7,14 +7,14 @@ from John_Jellicoe import algoritmo_JJ
 
 
 class TestBtAndJohn(unittest.TestCase):
-    def test_BT_3_3_2_COTA(self):
-        n, m, barcos, filas, columnas = procesar_archivo("3_3_2.txt")
+    def test_cota(self, filename):
+        n, m, barcos, filas, columnas = procesar_archivo(filename)
         demanda_filas = sum(filas)
         demanda_columnas = sum(columnas)
         inicio = time.time()
         result = resolver_tablero(barcos, filas, columnas, demanda_filas, demanda_columnas)
         print("Tiempo de ejecución de la matriz {} x {} = {}: ".format(len(filas), len(columnas), time.time() - inicio))
-        row_demands, column_demands, boat_lengths = leer_casos_de_prueba("tercera_parte/casos_test/3_3_2.txt")
+        row_demands, column_demands, boat_lengths = leer_casos_de_prueba(filename)
         original_row_demands, original_column_demands = row_demands.copy(), column_demands.copy()
 
         n = len(row_demands)
@@ -27,9 +27,36 @@ class TestBtAndJohn(unittest.TestCase):
         cota = demanda_cumplida / result["demanda_cumplida"]
         print("Cota: ", cota)
 
+    def test_comp_3_3_2(self):
+        self.test_cota("tercera_parte/casos_test/3_3_2.txt")
+
+    def test_comp_5_5_6(self):
+        self.test_cota("tercera_parte/casos_test/5_5_6.txt")
+
+    def test_comp_8_7_10(self):
+        self.test_cota("tercera_parte/casos_test/8_7_10.txt")
+
+    def test_comp_10_3_3(self):
+        self.test_cota("tercera_parte/casos_test/10_3_3.txt")
+
+    def test_comp_10_10_10(self):
+        self.test_cota("tercera_parte/casos_test/10_10_10.txt")
+
+    def test_comp_12_12_21(self):
+        self.test_cota("tercera_parte/casos_test/12_12_21.txt")
+
+    def test_comp_15_10_15(self):
+        self.test_cota("tercera_parte/casos_test/15_10_15.txt")
+
+    def test_comp_20_20_20(self):
+        self.test_cota("tercera_parte/casos_test/20_20_20.txt")
+
+    def test_comp_20_25_30(self):
+        self.test_cota("tercera_parte/casos_test/20_25_30.txt")
+
+    def test_comp_30_25_25(self):
+        self.test_cota("tercera_parte/casos_test/30_25_25.txt")
+
 
 if __name__ == '__main__':
-    suite = unittest.TestSuite()
-    suite.addTest(TestBtAndJohn('test_BT_3_3_2_COTA'))
-    runner = unittest.TextTestRunner()
-    runner.run(suite)
+    unittest.main()
