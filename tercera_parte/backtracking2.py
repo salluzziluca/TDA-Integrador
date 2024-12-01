@@ -1,25 +1,25 @@
 
 def asignar_barco_horizontal(barco, tablero, fila, pos_ini, acumulados_columna):
-    for i in range(pos_ini, barco):
+    for i in range(pos_ini, pos_ini + barco):
         tablero[fila][i] = 1
         acumulados_columna[i] += 1
 
 
 def asignar_barco_vertical(barco, tablero, columna, pos_ini, acumulados_fila):
-    for i in range(pos_ini, barco):
-        tablero[pos_ini + i][columna] = 1
+    for i in range(pos_ini, pos_ini + barco):
+        tablero[i][columna] = 1
         acumulados_fila[i] += 1
 
 
 def remover_barco_horizontal(barco, tablero, fila, pos_ini, acumulados_fila, acumulados_columna):
-    for i in range(pos_ini, barco):
+    for i in range(pos_ini, pos_ini + barco):
         tablero[fila][i] = 0
         acumulados_columna[i] -= 1
     acumulados_fila[fila] -= barco
 
 
 def remover_barco_vertical(barco, tablero, columna, pos_ini, acumulados_fila, acumulados_columna):
-    for i in range(pos_ini, barco):
+    for i in range(pos_ini, pos_ini + barco):
         tablero[i][columna] = 0
         acumulados_fila[i] -= 1
     acumulados_columna[columna] -= barco
@@ -81,7 +81,7 @@ def bt_naval_r(barcos, ini, tablero, demandas_filas, demandas_columnas, acum_fil
                                    acum_columna, pos):
             bt_naval_r(barcos, ini + 1, tablero, demandas_filas, demandas_columnas, acum_fila, acum_columna,
                        incumplidas_min)
-            incumplidas = sum(demandas_filas) + sum(demandas_columnas) - (sum(acum_fila) + sum(demandas_columnas))
+            incumplidas = sum(demandas_filas) + sum(demandas_columnas) - (sum(acum_fila) + sum(acum_columna))
             if incumplidas < incumplidas_min:
                 incumplidas_min = incumplidas
             remover_barco_horizontal(barcos[i], tablero, pos[0], pos[1], acum_fila, acum_columna)
@@ -89,7 +89,7 @@ def bt_naval_r(barcos, ini, tablero, demandas_filas, demandas_columnas, acum_fil
                                  acum_columna, pos):
             bt_naval_r(barcos, ini + 1, tablero, demandas_filas, demandas_columnas, acum_fila, acum_columna,
                        incumplidas_min)
-            incumplidas = sum(demandas_filas) + sum(demandas_columnas) - (sum(acum_fila) + sum(demandas_columnas))
+            incumplidas = sum(demandas_filas) + sum(demandas_columnas) - (sum(acum_fila) + sum(acum_columna))
             if incumplidas < incumplidas_min:
                 incumplidas_min = incumplidas
             remover_barco_vertical(barcos[i], tablero, pos[1], pos[0], acum_fila, acum_columna)
