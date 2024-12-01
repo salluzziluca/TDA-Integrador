@@ -2,8 +2,6 @@ import unittest
 from auxiliares import leer_casos_de_prueba, print_tablero
 from John_Jellicoe import algoritmo_JJ
 
-
-
 class TestJohnJellicoe(unittest.TestCase):
     def assertDemandaCumplida(self, filename):    
         row_demands, column_demands, boat_lengths = leer_casos_de_prueba(filename)
