@@ -1,5 +1,5 @@
 def procesar_archivo(nombre_test):
-    with open(f'casos_test/{nombre_test}') as archivo:
+    with open(f'tercera_parte/casos_test/{nombre_test}') as archivo:
         lineas = [linea.strip() for linea in archivo if not linea.startswith("#")]
     
     # Separar las secciones basándonos en líneas completamente vacías
@@ -14,9 +14,10 @@ def procesar_archivo(nombre_test):
     filas = list(map(int, secciones[0]))
     columnas = list(map(int, secciones[1]))
     barcos = list(map(int, secciones[2]))
+    n = len(filas)
+    m = len(columnas)
     
-    
-    return barcos, filas, columnas
+    return n,m,barcos, filas, columnas
     
     
 
