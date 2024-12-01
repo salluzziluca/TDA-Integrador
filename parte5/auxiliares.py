@@ -48,11 +48,12 @@ def print_tablero(board, row_demands, column_demands):
         print(f"{demand:>{cell_width - 1}} | {row_str}")
 
 
-def generate_test_case(min_size=3, max_size=30, min_boats=2, max_boats=30):
-    n = random.randint(min_size, max_size)
-    m = random.randint(min_size, max_size)
+def generate_test_case(offset_n_m, size, num_boats):
+    n = size
+    offset = random.randint(-offset_n_m, offset_n_m) 
+    m = n + offset
     
-    num_boats = random.randint(min_boats, min(max_boats, (n * m) // 4))  
+    # num_boats = random.randint(min_boats, min(max_boats, (n * m) // 4))  
     
     max_length = min(n, m)  
     boat_lengths = []

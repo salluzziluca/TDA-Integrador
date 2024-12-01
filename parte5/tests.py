@@ -13,14 +13,17 @@ class TestJohnJellicoe(unittest.TestCase):
         m = len(column_demands)
         
         # Get the solution board
-        board = algoritmo_JJ(n, m, boat_lengths, row_demands, column_demands)
+        board, demanda_restante = algoritmo_JJ(n, m, boat_lengths, row_demands, column_demands)
         
         # Validate demands aren't exceeded
         self.validate_demands(board, original_row_demands, original_column_demands)
         self.validate_no_adjacent_ships(board)
 
+        demanda_total = sum(original_row_demands) + sum(original_column_demands)
+
         print("-------------------------------------------------------")
         print(filename)
+        print("Demanda total: ",demanda_total,"Demanda restante: ",demanda_restante,"Demanda cumplida: ",demanda_total-demanda_restante)
         print_tablero(board, original_row_demands, original_column_demands)
 
     def validate_demands(self, board, row_demands, column_demands):
