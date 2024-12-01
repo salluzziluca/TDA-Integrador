@@ -53,7 +53,6 @@ def generate_test_case(offset_n_m, size, num_boats):
     offset = random.randint(-offset_n_m, offset_n_m) 
     m = n + offset
     
-    # num_boats = random.randint(min_boats, min(max_boats, (n * m) // 4))  
     
     max_length = min(n, m)  
     boat_lengths = []

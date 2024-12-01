@@ -212,4 +212,4 @@ def main():
         else:
             print(f"Barco {idx}: No colocado")
 
-main()
+#main()
