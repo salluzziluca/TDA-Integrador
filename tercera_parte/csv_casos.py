@@ -11,15 +11,12 @@ def procesar_archivo(nombre_test):
         raise ValueError("El archivo no tiene el formato esperado con tres secciones separadas por líneas en blanco.")
     
     # Convertir las secciones en listas de enteros
-    demandas_filas = list(map(int, secciones[0]))
-    demandas_columnas = list(map(int, secciones[1]))
+    filas = list(map(int, secciones[0]))
+    columnas = list(map(int, secciones[1]))
     barcos = list(map(int, secciones[2]))
     
-    # Calcular n y m
-    n = len(demandas_filas)
-    m = len(demandas_columnas)
     
-    return n, m, barcos, demandas_filas, demandas_columnas
+    return barcos, filas, columnas
     
     
 
