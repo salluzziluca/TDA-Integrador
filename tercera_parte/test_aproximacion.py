@@ -7,7 +7,7 @@ from John_Jellicoe import algoritmo_JJ
 
 
 class TestBtAndJohn(unittest.TestCase):
-    def test_cota(self, filename):
+    def comparar_cotas(self, filename):
         n, m, barcos, filas, columnas = procesar_archivo(filename)
         demanda_filas = sum(filas)
         demanda_columnas = sum(columnas)
@@ -28,34 +28,34 @@ class TestBtAndJohn(unittest.TestCase):
         print("Cota: ", cota)
 
     def test_comp_3_3_2(self):
-        self.test_cota("tercera_parte/casos_test/3_3_2.txt")
+        self.comparar_cotas("tercera_parte/casos_test/3_3_2.txt")
 
     def test_comp_5_5_6(self):
-        self.test_cota("tercera_parte/casos_test/5_5_6.txt")
+        self.comparar_cotas("tercera_parte/casos_test/5_5_6.txt")
 
     def test_comp_8_7_10(self):
-        self.test_cota("tercera_parte/casos_test/8_7_10.txt")
+        self.comparar_cotas("tercera_parte/casos_test/8_7_10.txt")
 
     def test_comp_10_3_3(self):
-        self.test_cota("tercera_parte/casos_test/10_3_3.txt")
+        self.comparar_cotas("tercera_parte/casos_test/10_3_3.txt")
 
     def test_comp_10_10_10(self):
-        self.test_cota("tercera_parte/casos_test/10_10_10.txt")
+        self.comparar_cotas("tercera_parte/casos_test/10_10_10.txt")
 
     def test_comp_12_12_21(self):
-        self.test_cota("tercera_parte/casos_test/12_12_21.txt")
+        self.comparar_cotas("tercera_parte/casos_test/12_12_21.txt")
 
     def test_comp_15_10_15(self):
-        self.test_cota("tercera_parte/casos_test/15_10_15.txt")
+        self.comparar_cotas("tercera_parte/casos_test/15_10_15.txt")
 
     def test_comp_20_20_20(self):
-        self.test_cota("tercera_parte/casos_test/20_20_20.txt")
+        self.comparar_cotas("tercera_parte/casos_test/20_20_20.txt")
 
     def test_comp_20_25_30(self):
-        self.test_cota("tercera_parte/casos_test/20_25_30.txt")
+        self.comparar_cotas("tercera_parte/casos_test/20_25_30.txt")
 
     def test_comp_30_25_25(self):
-        self.test_cota("tercera_parte/casos_test/30_25_25.txt")
+        self.comparar_cotas("tercera_parte/casos_test/30_25_25.txt")
 
 
 if __name__ == '__main__':
