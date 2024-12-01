@@ -1,5 +1,5 @@
 from John_Jellicoe import algoritmo_JJ
-from utils import leer_casos_de_prueba,print_tablero
+from auxiliares import leer_casos_de_prueba, print_tablero
 
 # python parte5/main.py parte5/TP3/3_3_2.txt
 # python parte5/main.py parte5/TP3/8_7_10.txt

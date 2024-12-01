@@ -1,5 +1,5 @@
 import unittest
-from utils import leer_casos_de_prueba, print_tablero
+from auxiliares import leer_casos_de_prueba, print_tablero
 from John_Jellicoe import algoritmo_JJ
 
 
