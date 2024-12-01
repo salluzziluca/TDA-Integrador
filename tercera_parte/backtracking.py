@@ -183,7 +183,7 @@ def resolver_tablero(barcos, filas, columnas, demandas_filas, demandas_columnas)
 
 def main():
     # Cambiar el nombre del archivo según el caso
-    barcos, filas, columnas = procesar_archivo("12_12_21.txt")
+    n, m, barcos, filas, columnas = procesar_archivo("12_12_21.txt")
     demandas_filas = sum(filas)
     demandas_columnas = sum(columnas)
     
