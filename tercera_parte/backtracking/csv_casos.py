@@ -1,5 +1,5 @@
 def procesar_archivo(nombre_test):
-    with open(f'tercera_parte/casos_test/{nombre_test}') as archivo:
+    with open(f'tercera_parte/backtracking/casos_test/{nombre_test}') as archivo:
         lineas = [linea.strip() for linea in archivo if not linea.startswith("#")]
     
     # Separar las secciones basándonos en líneas completamente vacías
