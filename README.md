@@ -1,5 +1,3 @@
-# TDA-Integrador
-
 ## Parte 2:
 Para demostrar que el problema de la batalla naval es np-completo se debe poder reducir bin packing (que es np-completo)
 al problema de la batalla naval.
