@@ -7,23 +7,23 @@ from auxiliares import leer_casos_de_prueba, print_tablero
 # python tercera_parte/main_JJ.py tercera_parte/casos_test/12_12_21.txt
 # python tercera_parte/main_JJ.py tercera_parte/casos_test/20_20_20.txt
 # python tercera_parte/main_JJ.py tercera_parte/casos_test/30_25_25.txt
-def main(filename):
-    row_demands, column_demands, boat_lengths = leer_casos_de_prueba(filename)
-    original_row_demands, original_column_demands = row_demands.copy(), column_demands.copy()
-    n = len(row_demands)
-    m = len(column_demands)
-    board, demanda_restante = algoritmo_JJ(n, m, boat_lengths, row_demands, column_demands)
+def main(nombre_archivo):
+    demandas_filas, demandas_columnas, longitudes_barcos = leer_casos_de_prueba(nombre_archivo)
+    demandas_filas_originales, demandas_columnas_originales = demandas_filas.copy(), demandas_columnas.copy()
+    n = len(demandas_filas)
+    m = len(demandas_columnas)
+    tablero, demanda_restante = algoritmo_JJ(n, m, longitudes_barcos, demandas_filas, demandas_columnas)
 
-    demanda_total = sum(original_row_demands) + sum(original_column_demands)
+    demanda_total = sum(demandas_filas_originales) + sum(demandas_columnas_originales)
 
-    print("Demanda total: ", demanda_total,"Demanda restante: ", demanda_restante, "Demanda cumplida: ",demanda_total-demanda_restante)
-    print_tablero(board,original_row_demands, original_column_demands)
+    print("Demanda total: ", demanda_total, "Demanda restante: ", demanda_restante, "Demanda cumplida: ", demanda_total - demanda_restante)
+    print_tablero(tablero, demandas_filas_originales, demandas_columnas_originales)
 
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('filename', help='Nombre del archivo de entrada')
+    parser.add_argument('nombre_archivo', help='Nombre del archivo de entrada')
     args = parser.parse_args()
 
-    main(args.filename)
+    main(args.nombre_archivo)
 
