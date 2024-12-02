@@ -1,6 +1,6 @@
 import numpy as np
 
-def can_place_ship(board,n,m, x, y, length, is_horizontal):
+def puede_poner_barco(board,n,m, x, y, length, is_horizontal):
     if is_horizontal:
         if y + length > m:  
             return False
@@ -36,7 +36,7 @@ def can_place_ship(board,n,m, x, y, length, is_horizontal):
             return False
     return True
 
-def place_ship(board, x, y, length, is_horizontal):
+def colocar_barco(board, x, y, length, is_horizontal):
     if is_horizontal:
         for i in range(length):
             board[x, y + i] = 1
@@ -65,9 +65,8 @@ def algoritmo_JJ(n, m, ship_lengths, row_restrictions, col_restrictions):
                 target_row = max(row_demand, key=lambda x: x[1])[0]
                 if row_restrictions[target_row] >= ship:  # Verificar si la fila puede acomodar el barco
                     for start_col in range(m):
-                        # Asegurar que todas las columnas involucradas tienen suficiente demanda
-                        if all(0 <= start_col + i < m and col_restrictions[start_col + i] > 0 for i in range(ship)) and can_place_ship(board,n,m, target_row, start_col, ship, True):
-                            place_ship(board, target_row, start_col, ship, True)
+                        if all(0 <= start_col + i < m and col_restrictions[start_col + i] > 0 for i in range(ship)) and puede_poner_barco(board,n,m, target_row, start_col, ship, True):
+                            colocar_barco(board, target_row, start_col, ship, True)
                             row_restrictions[target_row] -= ship
                             for i in range(ship):
                                 col_restrictions[start_col + i] -= 1
@@ -83,9 +82,8 @@ def algoritmo_JJ(n, m, ship_lengths, row_restrictions, col_restrictions):
                 target_col = max(col_demand, key=lambda x: x[1])[0]
                 if col_restrictions[target_col] >= ship:  # Verificar si la columna puede acomodar el barco
                     for start_row in range(n):
-                        # Asegurar que todas las filas involucradas tienen suficiente demanda
-                        if all(0 <= start_row + i < n and row_restrictions[start_row + i] > 0 for i in range(ship)) and can_place_ship(board,n,m, start_row, target_col, ship, False):
-                            place_ship(board, start_row, target_col, ship, False)
+                        if all(0 <= start_row + i < n and row_restrictions[start_row + i] > 0 for i in range(ship)) and puede_poner_barco(board,n,m, start_row, target_col, ship, False):
+                            colocar_barco(board, start_row, target_col, ship, False)
                             col_restrictions[target_col] -= ship
                             for i in range(ship):
                                 row_restrictions[start_row + i] -= 1
