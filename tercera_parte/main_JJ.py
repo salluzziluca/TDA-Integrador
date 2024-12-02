@@ -21,7 +21,6 @@ def main(filename):
 
 if __name__ == '__main__':
     import argparse
-
     parser = argparse.ArgumentParser()
     parser.add_argument('filename', help='Nombre del archivo de entrada')
     args = parser.parse_args()
