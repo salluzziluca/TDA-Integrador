@@ -1,123 +1,121 @@
 import random
-
 import numpy as np
 
-def leer_casos_de_prueba(filename):
-    with open(filename, 'r') as file:
-        lines = [line.strip() for line in file if not line.startswith('#')]
+def leer_casos_de_prueba(nombre_archivo):
+    with open(nombre_archivo, 'r') as archivo:
+        lineas = [linea.strip() for linea in archivo if not linea.startswith('#')]
 
-        data = [int(line) for line in lines if line]
+        datos = [int(linea) for linea in lineas if linea]
 
-        section_lengths = []
-        current_length = 0
+        longitudes_secciones = []
+        longitud_actual = 0
         
-        with open(filename, 'r') as file:
-            for line in file:
-                if line.strip() == '':
-                    if current_length > 0:
-                        section_lengths.append(current_length)
-                        current_length = 0
-                elif not line.startswith('#'):
-                    current_length += 1
+        with open(nombre_archivo, 'r') as archivo:
+            for linea in archivo:
+                if linea.strip() == '':
+                    if longitud_actual > 0:
+                        longitudes_secciones.append(longitud_actual)
+                        longitud_actual = 0
+                elif not linea.startswith('#'):
+                    longitud_actual += 1
         
-        if current_length > 0:
-            section_lengths.append(current_length)
+        if longitud_actual > 0:
+            longitudes_secciones.append(longitud_actual)
 
-        n_rows = section_lengths[0]
-        n_cols = section_lengths[1]
+        n_filas = longitudes_secciones[0]
+        n_columnas = longitudes_secciones[1]
         
-        row_demands = data[:n_rows]
-        column_demands = data[n_rows:n_rows + n_cols]
-        boat_lengths = data[n_rows + n_cols:]
+        demandas_filas = datos[:n_filas]
+        demandas_columnas = datos[n_filas:n_filas + n_columnas]
+        longitudes_barcos = datos[n_filas + n_columnas:]
         
-        return row_demands, column_demands, boat_lengths
+        return demandas_filas, demandas_columnas, longitudes_barcos
     
-def print_tablero(board, row_demands, column_demands):
-    max_num = max(max(row_demands), max(column_demands), 1)  
-    cell_width = len(str(max_num)) + 2  
+def print_tablero(tablero, demandas_filas, demandas_columnas):
+    max_num = max(max(demandas_filas), max(demandas_columnas), 1)  
+    ancho_celda = len(str(max_num)) + 2  
 
-    col_header = " " * (cell_width + 1)  
-    col_header += "".join(f"{col:>{cell_width}}" for col in column_demands)
-    separator = " " * (cell_width + 1) + "-" * (len(column_demands) * cell_width)
+    encabezado_columnas = " " * (ancho_celda + 1)  
+    encabezado_columnas += "".join(f"{col:>{ancho_celda}}" for col in demandas_columnas)
+    separador = " " * (ancho_celda + 1) + "-" * (len(demandas_columnas) * ancho_celda)
 
-    print(col_header)
-    print(separator)
+    print(encabezado_columnas)
+    print(separador)
 
-    for demand, row in zip(row_demands, board):
-        row_str = "".join(f"{cell:>{cell_width}}" for cell in row)
-        print(f"{demand:>{cell_width - 1}} | {row_str}")
+    for demanda, fila in zip(demandas_filas, tablero):
+        fila_str = "".join(f"{celda:>{ancho_celda}}" for celda in fila)
+        print(f"{demanda:>{ancho_celda - 1}} | {fila_str}")
 
 
-def generate_test_case(offset_n_m, size, num_boats):
-    n = size
-    offset = random.randint(-offset_n_m, offset_n_m) 
+def generar_caso_de_prueba(offset, tamaño, num_barcos):
+    n = tamaño
+    offset = random.randint(-offset, offset) 
     m = n + offset
     
+    longitud_maxima = min(n, m)  
+    longitudes_barcos = []
+    for _ in range(num_barcos):
+        longitud = random.randint(1, longitud_maxima)
+        longitudes_barcos.append(longitud)
     
-    max_length = min(n, m)  
-    boat_lengths = []
-    for _ in range(num_boats):
-        length = random.randint(1, max_length)
-        boat_lengths.append(length)
+    longitudes_barcos.sort(reverse=True)
     
-    boat_lengths.sort(reverse=True)
+    tablero = np.zeros((n, m), dtype=int)
     
-    board = np.zeros((n, m), dtype=int)
-    
-    placed_boats = []
-    for length in boat_lengths:
-        placed = False
-        attempts = 0
-        max_attempts = 50 
+    barcos_colocados = []
+    for longitud in longitudes_barcos:
+        colocado = False
+        intentos = 0
+        max_intentos = 50 
         
-        while not placed and attempts < max_attempts:
-            is_horizontal = random.choice([True, False])
+        while not colocado and intentos < max_intentos:
+            es_horizontal = random.choice([True, False])
             
-            if is_horizontal:
-                if length > m:
-                    attempts += 1
+            if es_horizontal:
+                if longitud > m:
+                    intentos += 1
                     continue
-                row = random.randint(0, n-1)
-                col = random.randint(0, m-length)
-                coords = [(row, col+i) for i in range(length)]
+                fila = random.randint(0, n-1)
+                columna = random.randint(0, m-longitud)
+                coordenadas = [(fila, columna+i) for i in range(longitud)]
             else:
-                if length > n:
-                    attempts += 1
+                if longitud > n:
+                    intentos += 1
                     continue
-                row = random.randint(0, n-length)
-                col = random.randint(0, m-1)
-                coords = [(row+i, col) for i in range(length)]
+                fila = random.randint(0, n-longitud)
+                columna = random.randint(0, m-1)
+                coordenadas = [(fila+i, columna) for i in range(longitud)]
             
-            valid = True
-            for r, c in coords:
-                for dr in [-1, 0, 1]:
+            valido = True
+            for f, c in coordenadas:
+                for df in [-1, 0, 1]:
                     for dc in [-1, 0, 1]:
-                        nr, nc = r + dr, c + dc
-                        if 0 <= nr < n and 0 <= nc < m and board[nr, nc] == 1:
-                            valid = False
+                        nf, nc = f + df, c + dc
+                        if 0 <= nf < n and 0 <= nc < m and tablero[nf, nc] == 1:
+                            valido = False
                             break
-                    if not valid:
+                    if not valido:
                         break
-                if not valid:
+                if not valido:
                     break
             
-            if valid:
-                for r, c in coords:
-                    board[r, c] = 1
-                placed = True
-                placed_boats.append(length)
+            if valido:
+                for f, c in coordenadas:
+                    tablero[f, c] = 1
+                colocado = True
+                barcos_colocados.append(longitud)
             
-            attempts += 1
+            intentos += 1
         
-    row_demands = [sum(row) for row in board]
-    column_demands = [sum(column) for column in board.T]
+    demandas_filas = [sum(fila) for fila in tablero]
+    demandas_columnas = [sum(columna) for columna in tablero.T]
     
     for i in range(n):
-        extra = random.randint(0, m - row_demands[i])
-        row_demands[i] += extra
+        extra = random.randint(0, m - demandas_filas[i])
+        demandas_filas[i] += extra
     
     for j in range(m):
-        extra = random.randint(0, n - column_demands[j])
-        column_demands[j] += extra
+        extra = random.randint(0, n - demandas_columnas[j])
+        demandas_columnas[j] += extra
     
-    return n, m, placed_boats, row_demands, column_demands
+    return n, m, barcos_colocados, demandas_filas, demandas_columnas
