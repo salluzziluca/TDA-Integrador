@@ -14,10 +14,9 @@ def procesar_archivo(nombre_test):
     filas = list(map(int, secciones[0]))
     columnas = list(map(int, secciones[1]))
     barcos = list(map(int, secciones[2]))
-    n = len(filas)
-    m = len(columnas)
+   
     
-    return n,m,barcos, filas, columnas
+    return barcos, filas, columnas
     
     
 
