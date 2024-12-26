@@ -1,4 +1,4 @@
-from John_Jellicoe import algoritmo_JJ
+from John_Jellicoe import algoritmo_JJ, obtener_posiciones_barcos
 from auxiliares import leer_casos_de_prueba, print_tablero
 
 # python tercera_parte/main_JJ.py tercera_parte/casos_test/3_3_2.txt
@@ -18,6 +18,10 @@ def main(nombre_archivo):
 
     print("Demanda total: ", demanda_total, "Demanda restante: ", demanda_restante, "Demanda cumplida: ", demanda_total - demanda_restante)
     print_tablero(tablero, demandas_filas_originales, demandas_columnas_originales)
+    posiciones_barcos = obtener_posiciones_barcos(tablero)
+    print("\nPosiciones de los barcos:")
+    for idx, barco in enumerate(posiciones_barcos, start=1):
+        print(f"Barco {idx}: {barco}")
 
 if __name__ == '__main__':
     import argparse

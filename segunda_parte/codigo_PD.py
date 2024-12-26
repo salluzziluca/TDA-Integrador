@@ -39,11 +39,7 @@ def programacion_dinamica_sofia(monedas):
                 OPT[izq][der] = tomar_der
                 decisiones[izq][der] = 'der'
 
-    return OPT[0][n - 1]
-
-
-#, reconstruir_camino(decisiones, monedas)
-
+    return OPT[0][n - 1], decisiones
 
 def reconstruir_camino(decisiones, monedas):
     n = len(monedas)
@@ -55,7 +51,7 @@ def reconstruir_camino(decisiones, monedas):
     while left <= right:
         if decisiones[left][right] == 'izq':
             if turnos % 2 == 0:
-                camino.append(('Sofia agarra la primera', monedas[left]))
+                camino.append(('Sofia agarra la primera: ', monedas[left]))
             else:
                 camino.append(('Mateo agarra la primera', monedas[left]))
             left += 1  # Reducimos el intervalo por la izquierda

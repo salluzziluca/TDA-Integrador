@@ -8,9 +8,9 @@ from csv_casos import procesar_archivo
 # python tercera_parte/main_BT.py tercera_parte/casos_test/12_12_21.txt
 # python tercera_parte/main_BT.py tercera_parte/casos_test/20_20_20.txt
 # python tercera_parte/main_BT.py tercera_parte/casos_test/30_25_25.txt
-def main(archivo):
+def main(nombre_archivo):
     # Cambiar el nombre del archivo según el caso
-    n,m,barcos, filas, columnas = procesar_archivo(archivo)
+    barcos, filas, columnas = procesar_archivo(nombre_archivo)
     demandas_filas = sum(filas)
     demandas_columnas = sum(columnas)
     
@@ -18,7 +18,7 @@ def main(archivo):
     solucion = resolver_tablero(barcos, filas, columnas, demandas_filas, demandas_columnas)
     end = time.time()
     
-    tablero = solucion["tablero_optimo"]
+    tablero = solucion["matriz_optimo"]
     tablero_formateado = [[" - " if celda == -1 else f" {str(celda)} "  for celda in fila] for fila in tablero]
     demanda_cumplida = solucion["demanda_cumplida"]
     demanda_total = solucion["demanda_total"]

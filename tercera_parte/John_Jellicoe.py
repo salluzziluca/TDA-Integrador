@@ -43,7 +43,6 @@ def colocar_barco(tablero, x, y, largo, es_horizontal):
         for i in range(largo):
             tablero[x + i, y] = 1
 
-
 def algoritmo_JJ(n, m, largo_barcos, filas_restricciones, col_restricciones):
     tablero = np.zeros((n, m), dtype=int)
 
@@ -99,3 +98,39 @@ def algoritmo_JJ(n, m, largo_barcos, filas_restricciones, col_restricciones):
 
     demanda_restante = sum(filas_restricciones) + sum(col_restricciones)
     return tablero, demanda_restante
+
+def obtener_posiciones_barcos(tablero):
+    """
+    Extrae las posiciones de los barcos en el tablero.
+    Devuelve una lista de barcos con sus coordenadas.
+    """
+    n, m = tablero.shape
+    barcos = []
+    visitados = set()
+    
+    for i in range(n):
+        for j in range(m):
+            if tablero[i, j] == 1 and (i, j) not in visitados:
+                # Detectar un barco
+                barco = []
+                x, y = i, j
+                
+                # Verificar si es horizontal
+                if j + 1 < m and tablero[x, y + 1] == 1:
+                    while y < m and tablero[x, y] == 1:
+                        barco.append((x, y))
+                        visitados.add((x, y))
+                        y += 1
+                # Si no es horizontal, es vertical
+                elif i + 1 < n and tablero[x + 1, y] == 1:
+                    while x < n and tablero[x, y] == 1:
+                        barco.append((x, y))
+                        visitados.add((x, y))
+                        x += 1
+                else:
+                    barco.append((x, y))
+                    visitados.add((x, y))
+                    
+                barcos.append(barco)
+    
+    return barcos
