@@ -8,7 +8,7 @@ from John_Jellicoe import algoritmo_JJ
 
 class TestBtAndJohn(unittest.TestCase):
     def comparar_cotas(self, filename):
-        n, m, barcos, filas, columnas = procesar_archivo(filename)
+        barcos, filas, columnas = procesar_archivo(filename)
         demanda_filas = sum(filas)
         demanda_columnas = sum(columnas)
         inicio = time.time()
@@ -24,8 +24,9 @@ class TestBtAndJohn(unittest.TestCase):
         board, demanda_restante = algoritmo_JJ(n, m, boat_lengths, row_demands, column_demands)
 
         demanda_cumplida = sum(original_row_demands) + sum(original_column_demands) - demanda_restante
-        cota = demanda_cumplida / result["demanda_cumplida"]
-        print("Cota: ", cota)
+
+        cota = demanda_cumplida /  result["demanda_cumplida"]
+        print(f"Demanda cumplida JJ: {demanda_cumplida} | Demanda cumplida BT: {result["demanda_cumplida"]} | Cota: {cota}")
 
     def test_comp_3_3_2(self):
         self.comparar_cotas("tercera_parte/casos_test/3_3_2.txt")
